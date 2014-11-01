@@ -1,19 +1,29 @@
-# MapPath
+MapPath
+=======
 
 Library for convenient access to data structures.
 
-## Installation
+Purpose
+-------
+
+This is not an [XPATH](http://en.wikipedia.org/wiki/XPath) implementation for Go, but a simple path interface
+to structured data files, like JSON or YAML.
+
+Documentation
+-------------
+
+### Installation
 
 ```bash
 $ go get github.com/ukautz/mappath
 ```
 
-## Usage
+### Usage
 
 This package needs at least Go 1.1. Import package with
 
 ```go
-import "github.com/ukautz/mappath
+import "github.com/ukautz/mappath"
 ```
 
 Then you can do
@@ -41,15 +51,7 @@ Assuming a simple JSON file:
 }
 ```
 
-## Purpose
-
-This is not an [XPATH](http://en.wikipedia.org/wiki/XPath) implementation for Go, but a simple path interface
- to structured data files, like JSON or YAML.
-
-TODO
-
-
-## Extended example
+### Extended example
 
 TODO
 
