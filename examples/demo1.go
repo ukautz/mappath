@@ -16,7 +16,7 @@ func main() {
 			},
 		},
 	})
-	v, _ := c.Get("baz/baz/baz")
+	v, err := c.Get("baz/baz/baz")
 
 	// catch path not found
 	if err != nil {
