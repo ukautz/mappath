@@ -41,6 +41,14 @@ Assuming a simple JSON file:
 }
 ```
 
+## Purpose
+
+This is not an [XPATH](http://en.wikipedia.org/wiki/XPath) implementation for Go, but a simple path interface
+ to structured data files, like JSON or YAML.
+
+TODO
+
+
 ## Extended example
 
 TODO
