@@ -17,5 +17,11 @@ func main() {
 		},
 	})
 	v, _ := c.Get("baz/baz/baz")
-	fmt.Printf("Got whole: %+v\n", v)
+
+	// catch path not found
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("Got whole: %+v\n", v)
+	}
 }

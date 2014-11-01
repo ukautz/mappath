@@ -25,6 +25,5 @@ func FromJsonFile(file string) (*MapPath, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("JSON: %s\n\n", string(in))
 	return FromJson(in)
 }
