@@ -12,6 +12,8 @@ to structured data files, like JSON or YAML.
 Documentation
 -------------
 
+GoDoc can be [found here](http://godoc.org/github.com/ukautz/mappath)
+
 ### Installation
 
 ```bash
