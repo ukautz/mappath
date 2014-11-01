@@ -90,13 +90,13 @@ result, err = mp.GetMap("the/path")
 **`mappath.NotFoundError`**
 
 When accessing a path with any `Get` method, the result contains the (appropriate) `nil` value
-if the path cannot be found. In addition the error is a `mappath.NotFoundError` error
+if the path cannot be found.
 
 **`mappath.InvalidTypeError`**
 
 If you use the type specific getter you could also try getting a value which cannot be convert. For example
 when trying to get an `int` of a string value like `foo bar`, or when you try to get a `string` but the
-path is actually a sub-structure
+path is actually a sub-structure.
 
 ### Convenience: Fallback values
 
