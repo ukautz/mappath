@@ -74,7 +74,7 @@ func (this *MapPath) Has(path string) bool {
 }
 
 // GetInt returns int value of path. If value cannot be parsed or converted to
-//	int then an InvalidTypeError is returned
+// int then an InvalidTypeError is returned
 func (this *MapPath) GetInt(path string, fallback ...int) (int, error) {
 	var val interface{}
 	var err error
@@ -111,7 +111,7 @@ func (this *MapPath) GetInt(path string, fallback ...int) (int, error) {
 }
 
 // GetFloat returns float64 value of path. If value cannot be parsed or converted to
-//	float64 then an InvalidTypeError is returned
+// float64 then an InvalidTypeError is returned
 func (this *MapPath) GetFloat(path string, fallback ...float64) (float64, error) {
 	var val interface{}
 	var err error
@@ -143,7 +143,7 @@ func (this *MapPath) GetFloat(path string, fallback ...float64) (float64, error)
 }
 
 // GetString returns string value of path. If value cannot be parsed or converted to
-//	string then an InvalidTypeError is returned
+// string then an InvalidTypeError is returned
 func (this *MapPath) GetString(path string, fallback ...string) (string, error) {
 	var val interface{}
 	var err error
@@ -172,7 +172,7 @@ func (this *MapPath) GetString(path string, fallback ...string) (string, error) 
 }
 
 // GetMap returns map[string]interface{} value of path. If value cannot be parsed or converted to
-//	map[string]interface{} then an InvalidTypeError is returned
+// map[string]interface{} then an InvalidTypeError is returned
 func (this *MapPath) GetMap(path string, fallback ...map[string]interface{}) (map[string]interface{}, error) {
 	var val interface{}
 	var err error
