@@ -15,7 +15,13 @@ var defaultTest = map[string]interface{}{
 			"bam": 42,
 		},
 	},
-	"array": []int{1, 2, 3, 4},
+	"array": map[string]interface{}{
+		"empty":        []interface{}{},
+		"realints":     []int{1, 2, 3, 4},
+		"realfloats":   []float64{1.01, 2.02, 3.03, 4.04},
+		"stringints":   []string{"1", "2", "3", "4"},
+		"stringfloats": []string{"1.01", "2.02", "3.03", "4.04"},
+		"strings":      []string{"foo", "bar", "baz"}},
 	"3d-array": [][][]int{
 		[][]int{
 			[]int{1, 2, 3},
@@ -39,12 +45,43 @@ var defaultTest = map[string]interface{}{
 			},
 		},
 	},
-	"some": map[string]interface{}{
+	"scalar": map[string]interface{}{
 		"stringint":   "123",
 		"stringfloat": "123.456",
 		"realint":     123,
 		"realfloat":   123.456,
 	},
+}
+
+/*
+ * -------
+ * Root
+ * -------
+ */
+
+var rootAccessTests = []map[string]interface{}{
+	map[string]interface{}{
+		"foo": "bar",
+	},
+	map[string]interface{}{
+		"foo": map[string]interface{}{
+			"bar": "baz",
+		},
+	},
+	map[string]interface{}{
+		"foo": map[string]interface{}{
+			"bar": map[string]interface{}{
+				"baz": []int{1, 2, 3},
+			},
+		},
+	},
+}
+
+func TestRootAccess(t *testing.T) {
+	for i, test := range rootAccessTests {
+		mp := NewMapPath(test)
+		assert.Equal(t, test, mp.Root(), fmt.Sprintf("Root %d kept", i))
+	}
 }
 
 /*
@@ -77,12 +114,12 @@ var getExistingPathTests = []struct {
 	},
 	// array access
 	{
-		path:   "array/0",
+		path:   "array/realints/0",
 		expect: 1,
 		from:   defaultTest,
 	},
 	{
-		path:   "array/3",
+		path:   "array/realints/3",
 		expect: 4,
 		from:   defaultTest,
 	},
@@ -131,7 +168,7 @@ var getExistingPathTests = []struct {
 		from: defaultTest,
 	},
 	{
-		path:   "array",
+		path:   "array/realints",
 		expect: []int{1, 2, 3, 4},
 		from:   defaultTest,
 	},
@@ -245,25 +282,25 @@ var getIntValueTests = []struct {
 }{
 	// from actual int
 	{
-		path:     "some/realint",
+		path:     "scalar/realint",
 		err:      false,
 		expected: 123,
 	},
 	// from actual float
 	{
-		path:     "some/realfloat",
+		path:     "scalar/realfloat",
 		err:      false,
 		expected: 123,
 	},
 	// from parsable int string
 	{
-		path:     "some/stringint",
+		path:     "scalar/stringint",
 		err:      false,
 		expected: 123,
 	},
 	// from parsable float string
 	{
-		path:     "some/stringfloat",
+		path:     "scalar/stringfloat",
 		err:      false,
 		expected: 123,
 	},
@@ -281,7 +318,7 @@ var getIntValueTests = []struct {
 	},
 	// from not parsable array
 	{
-		path:     "array",
+		path:     "array/realints",
 		err:      true,
 		expected: 0,
 	},
@@ -303,7 +340,7 @@ func TestGetIntValue(t *testing.T) {
 		} else {
 			assert.Nil(t, e, "NO error returned")
 		}
-		assert.Equal(t, r, test.expected, "Expected value returned")
+		assert.Equal(t, test.expected, r, "Expected value returned")
 	}
 }
 
@@ -328,25 +365,25 @@ var getFloatValueTests = []struct {
 }{
 	// from actual int
 	{
-		path:     "some/realint",
+		path:     "scalar/realint",
 		err:      false,
 		expected: 123.0,
 	},
 	// from actual float
 	{
-		path:     "some/realfloat",
+		path:     "scalar/realfloat",
 		err:      false,
 		expected: 123.456,
 	},
 	// from parsable int string
 	{
-		path:     "some/stringint",
+		path:     "scalar/stringint",
 		err:      false,
 		expected: 123.0,
 	},
 	// from parsable float string
 	{
-		path:     "some/stringfloat",
+		path:     "scalar/stringfloat",
 		err:      false,
 		expected: 123.456,
 	},
@@ -364,7 +401,7 @@ var getFloatValueTests = []struct {
 	},
 	// from not parsable array
 	{
-		path:     "array",
+		path:     "array/realints",
 		err:      true,
 		expected: 0.0,
 	},
@@ -386,7 +423,7 @@ func TestGetFloatValue(t *testing.T) {
 		} else {
 			assert.Nil(t, e, "NO error returned")
 		}
-		assert.Equal(t, r, test.expected, "Expected value returned")
+		assert.Equal(t, test.expected, r, "Expected value returned")
 	}
 }
 
@@ -411,25 +448,25 @@ var getStringValueTests = []struct {
 }{
 	// from actual int
 	{
-		path:     "some/realint",
+		path:     "scalar/realint",
 		err:      false,
 		expected: "123",
 	},
 	// from actual float
 	{
-		path:     "some/realfloat",
+		path:     "scalar/realfloat",
 		err:      false,
 		expected: "123.456000000",
 	},
 	// from parsable int string
 	{
-		path:     "some/stringint",
+		path:     "scalar/stringint",
 		err:      false,
 		expected: "123",
 	},
 	// from parsable float string
 	{
-		path:     "some/stringfloat",
+		path:     "scalar/stringfloat",
 		err:      false,
 		expected: "123.456",
 	},
@@ -447,7 +484,7 @@ var getStringValueTests = []struct {
 	},
 	// from not parsable array
 	{
-		path:     "array",
+		path:     "array/realints",
 		err:      true,
 		expected: "",
 	},
@@ -469,7 +506,7 @@ func TestGetStringValue(t *testing.T) {
 		} else {
 			assert.Nil(t, e, "NO error returned")
 		}
-		assert.Equal(t, r, test.expected, "Expected value returned "+test.path)
+		assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
 	}
 }
 
@@ -494,25 +531,25 @@ var getMapValueTests = []struct {
 }{
 	// from actual int
 	{
-		path:     "some/realint",
+		path:     "scalar/realint",
 		err:      true,
 		expected: nil,
 	},
 	// from actual float
 	{
-		path:     "some/realfloat",
+		path:     "scalar/realfloat",
 		err:      true,
 		expected: nil,
 	},
 	// from parsable int string
 	{
-		path:     "some/stringint",
+		path:     "scalar/stringint",
 		err:      true,
 		expected: nil,
 	},
 	// from parsable float string
 	{
-		path:     "some/stringfloat",
+		path:     "scalar/stringfloat",
 		err:      true,
 		expected: nil,
 	},
@@ -532,13 +569,7 @@ var getMapValueTests = []struct {
 	},
 	// from not parsable array
 	{
-		path:     "array",
-		err:      true,
-		expected: nil,
-	},
-	// from invalid path
-	{
-		path:     "x/y/z",
+		path:     "array/realints",
 		err:      true,
 		expected: nil,
 	},
@@ -555,15 +586,15 @@ func TestGetMapValue(t *testing.T) {
 	for _, test := range getMapValueTests {
 		r, e := m.GetMap(test.path)
 		if test.err {
-			assert.NotNil(t, e, "Error returned OK "+test.path)
+			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
 		} else {
-			assert.Nil(t, e, "NO error returned "+test.path)
+			assert.Nil(t, e, fmt.Sprintf("NO error returned on %s (%+v)", test.path, r))
 		}
 		if test.expected == nil {
-			assert.Nil(t, r, "Expected nil returned "+test.path)
+			assert.Nil(t, r, fmt.Sprintf("Expected nil returned on %s", test.path))
 		} else {
-			assert.Equal(t, r, test.expected, "Expected value returned "+test.path)
+			assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
 		}
 	}
 }
@@ -576,6 +607,748 @@ func TestGetMapValueFallback(t *testing.T) {
 	r, e := m.GetMap("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
+}
+
+/*
+ * -------
+ * Get: Map
+ * -------
+ */
+
+var getSubValueTests = []struct {
+	path     string
+	err      bool
+	expected interface{}
+}{
+	// from actual int
+	{
+		path:     "scalar/realint",
+		err:      true,
+		expected: nil,
+	},
+	// from actual float
+	{
+		path:     "scalar/realfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable int string
+	{
+		path:     "scalar/stringint",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable float string
+	{
+		path:     "scalar/stringfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from not regular string
+	{
+		path:     "foo/bar",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable struct
+	{
+		path: "foo/baz",
+		err:  false,
+		expected: NewMapPath(map[string]interface{}{
+			"bam": 42,
+		}),
+	},
+	// from not parsable array
+	{
+		path:     "array/realints",
+		err:      true,
+		expected: nil,
+	},
+	// from invalid path
+	{
+		path:     "x/y/z",
+		err:      true,
+		expected: nil,
+	},
+}
+
+func TestGetSubValue(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getSubValueTests {
+		r, e := m.GetSub(test.path)
+		if test.err {
+			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
+			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
+		} else {
+			assert.Nil(t, e, fmt.Sprintf("NO error returned on %s (%+v)", test.path, r))
+		}
+		if test.expected == nil {
+			assert.Nil(t, r, fmt.Sprintf("Expected nil returned on %s", test.path))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
+		}
+	}
+}
+
+func TestGetSubValueFallback(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{})
+	f := NewMapPath(map[string]interface{}{
+		"foo": "bar",
+	})
+	r, e := m.GetSub("x/y/z", f)
+	assert.Nil(t, e, "No error when fallback used on invalid path")
+	assert.Equal(t, r, f, "Fallback is returned")
+}
+
+/*
+ * -------
+ * Get: Ints (list)
+ * -------
+ */
+
+var getIntsValueTests = []struct {
+	path     string
+	err      bool
+	expected interface{}
+}{
+	// from single int
+	{
+		path:     "scalar/realint",
+		err:      true,
+		expected: nil,
+	},
+	// from actual float
+	{
+		path:     "scalar/realfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable int string
+	{
+		path:     "scalar/stringint",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable float string
+	{
+		path:     "scalar/stringfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from not regular string
+	{
+		path:     "foo/bar",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable struct
+	{
+		path:     "foo/baz",
+		err:      true,
+		expected: nil,
+	},
+	// from array of ints
+	{
+		path:     "array/realints",
+		err:      false,
+		expected: []int{1, 2, 3, 4},
+	},
+	// from array of floats
+	{
+		path:     "array/realfloats",
+		err:      false,
+		expected: []int{1, 2, 3, 4},
+	},
+	// from array of string ints
+	{
+		path:     "array/stringints",
+		err:      false,
+		expected: []int{1, 2, 3, 4},
+	},
+	// from array of string floats
+	{
+		path:     "array/stringfloats",
+		err:      false,
+		expected: []int{1, 2, 3, 4},
+	},
+	// from empty array
+	{
+		path:     "array/empty",
+		err:      false,
+		expected: []int{},
+	},
+	// from un-convertable array
+	{
+		path:     "mixed/array2",
+		err:      true,
+		expected: nil,
+	},
+	// from invalid path
+	{
+		path:     "x/y/z",
+		err:      true,
+		expected: nil,
+	},
+}
+
+func TestGetIntsValue(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getIntsValueTests {
+		r, e := m.GetInts(test.path)
+		if test.err {
+			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
+			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
+		} else {
+			assert.Nil(t, e, fmt.Sprintf("NO error returned on %s (%+v)", test.path, r))
+		}
+		if test.expected == nil {
+			assert.Nil(t, r, fmt.Sprintf("Expected nil returned on %s", test.path))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
+		}
+	}
+}
+
+func TestGetIntsValueFallback(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{})
+	f := []int{2, 3, 4}
+	r, e := m.GetInts("x/y/z", f)
+	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
+	assert.Equal(t, r, f, "Fallback is returned (ints)")
+}
+
+/*
+ * -------
+ * Get: Floats (list)
+ * -------
+ */
+
+var getFloatsValueTests = []struct {
+	path     string
+	err      bool
+	expected interface{}
+}{
+	// from single int
+	{
+		path:     "scalar/realint",
+		err:      true,
+		expected: nil,
+	},
+	// from actual float
+	{
+		path:     "scalar/realfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable int string
+	{
+		path:     "scalar/stringint",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable float string
+	{
+		path:     "scalar/stringfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from not regular string
+	{
+		path:     "foo/bar",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable struct
+	{
+		path:     "foo/baz",
+		err:      true,
+		expected: nil,
+	},
+	// from array of ints
+	{
+		path:     "array/realints",
+		err:      false,
+		expected: []float64{1.0, 2.0, 3.0, 4.0},
+	},
+	// from array of floats
+	{
+		path:     "array/realfloats",
+		err:      false,
+		expected: []float64{1.01, 2.02, 3.03, 4.04},
+	},
+	// from array of string ints
+	{
+		path:     "array/stringints",
+		err:      false,
+		expected: []float64{1.0, 2.0, 3.0, 4.0},
+	},
+	// from array of string floats
+	{
+		path:     "array/stringfloats",
+		err:      false,
+		expected: []float64{1.01, 2.02, 3.03, 4.04},
+	},
+	// from empty array
+	{
+		path:     "array/empty",
+		err:      false,
+		expected: []float64{},
+	},
+	// from un-convertable array
+	{
+		path:     "mixed/array2",
+		err:      true,
+		expected: nil,
+	},
+	// from invalid path
+	{
+		path:     "x/y/z",
+		err:      true,
+		expected: nil,
+	},
+}
+
+func TestGetFloatsValue(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getFloatsValueTests {
+		r, e := m.GetFloats(test.path)
+		if test.err {
+			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
+			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
+		} else {
+			assert.Nil(t, e, fmt.Sprintf("NO error returned on %s (%+v)", test.path, r))
+		}
+		if test.expected == nil {
+			assert.Nil(t, r, fmt.Sprintf("Expected nil returned on %s", test.path))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
+		}
+	}
+}
+
+func TestGetFloatsValueFallback(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{})
+	f := []float64{2.02, 3.03, 4.04}
+	r, e := m.GetFloats("x/y/z", f)
+	assert.Nil(t, e, "No error when fallback used on invalid path (floats)")
+	assert.Equal(t, r, f, "Fallback is returned (floats)")
+}
+
+/*
+ * -------
+ * Get: Strings (list)
+ * -------
+ */
+
+var getStringsValueTests = []struct {
+	path     string
+	err      bool
+	expected interface{}
+}{
+	// from single int
+	{
+		path:     "scalar/realint",
+		err:      true,
+		expected: nil,
+	},
+	// from actual float
+	{
+		path:     "scalar/realfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable int string
+	{
+		path:     "scalar/stringint",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable float string
+	{
+		path:     "scalar/stringfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from not regular string
+	{
+		path:     "foo/bar",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable struct
+	{
+		path:     "foo/baz",
+		err:      true,
+		expected: nil,
+	},
+	// from array of ints
+	{
+		path:     "array/realints",
+		err:      false,
+		expected: []string{"1", "2", "3", "4"},
+	},
+	// from array of floats
+	{
+		path:     "array/realfloats",
+		err:      false,
+		expected: []string{"1.010000000", "2.020000000", "3.030000000", "4.040000000"},
+	},
+	// from array of ints
+	{
+		path:     "array/stringints",
+		err:      false,
+		expected: []string{"1", "2", "3", "4"},
+	},
+	// from array of floats
+	{
+		path:     "array/stringfloats",
+		err:      false,
+		expected: []string{"1.01", "2.02", "3.03", "4.04"},
+	},
+	// from array of floats
+	{
+		path:     "array/strings",
+		err:      false,
+		expected: []string{"foo", "bar", "baz"},
+	},
+	// from empty array
+	{
+		path:     "array/empty",
+		err:      false,
+		expected: []string{},
+	},
+	// from invalid path
+	{
+		path:     "x/y/z",
+		err:      true,
+		expected: nil,
+	},
+	// from invalid path
+	{
+		path:     "mixed/array2",
+		err:      true,
+		expected: nil,
+	},
+}
+
+func TestGetStringsValue(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getStringsValueTests {
+		r, e := m.GetStrings(test.path)
+		if test.err {
+			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
+			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
+		} else {
+			assert.Nil(t, e, fmt.Sprintf("NO error returned on %s (%+v)", test.path, r))
+		}
+		if test.expected == nil {
+			assert.Nil(t, r, fmt.Sprintf("Expected nil returned on %s", test.path))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
+		}
+	}
+}
+
+func TestGetStringsValueFallback(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{})
+	f := []string{"a", "b"}
+	r, e := m.GetStrings("x/y/z", f)
+	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
+	assert.Equal(t, r, f, "Fallback is returned (ints)")
+}
+
+/*
+ * -------
+ * Get: Maps (list)
+ * -------
+ */
+
+var getMapsValueTests = []struct {
+	path     string
+	err      bool
+	expected interface{}
+}{
+	// from single int
+	{
+		path:     "scalar/realint",
+		err:      true,
+		expected: nil,
+	},
+	// from actual float
+	{
+		path:     "scalar/realfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable int string
+	{
+		path:     "scalar/stringint",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable float string
+	{
+		path:     "scalar/stringfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from not regular string
+	{
+		path:     "foo/bar",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable struct
+	{
+		path:     "foo/baz",
+		err:      true,
+		expected: nil,
+	},
+	// from array of ints
+	{
+		path:     "array/realints",
+		err:      true,
+		expected: nil,
+	},
+	// from array of floats
+	{
+		path:     "array/realfloats",
+		err:      true,
+		expected: nil,
+	},
+	// from array of ints
+	{
+		path:     "array/stringints",
+		err:      true,
+		expected: nil,
+	},
+	// from array of floats
+	{
+		path:     "array/stringfloats",
+		err:      true,
+		expected: nil,
+	},
+	// from array of floats
+	{
+		path:     "array/strings",
+		err:      true,
+		expected: nil,
+	},
+	// from empty array
+	{
+		path:     "array/empty",
+		err:      false,
+		expected: []map[string]interface{}{},
+	},
+	// from invalid path
+	{
+		path:     "x/y/z",
+		err:      true,
+		expected: nil,
+	},
+	// from invalid path
+	{
+		path: "mixed/array2",
+		err:  false,
+		expected: []map[string]interface{}{
+			map[string]interface{}{
+				"foo": []int{1, 2, 3, 4},
+				"bar": []string{"one", "two"},
+			},
+			map[string]interface{}{
+				"foo": []int{11, 12, 13, 14},
+				"bar": []string{"five", "six"},
+			},
+		},
+	},
+}
+
+func TestGetMapsValue(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getMapsValueTests {
+		r, e := m.GetMaps(test.path)
+		if test.err {
+			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
+			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
+		} else {
+			assert.Nil(t, e, fmt.Sprintf("NO error returned on %s (%+v)", test.path, r))
+		}
+		if test.expected == nil {
+			assert.Nil(t, r, fmt.Sprintf("Expected nil returned on %s", test.path))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
+		}
+	}
+}
+
+func TestGetMapsValueFallback(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{})
+	f := []map[string]interface{}{
+		map[string]interface{}{
+			"foo": "bar",
+		},
+		map[string]interface{}{
+			"bar": "baz",
+		},
+	}
+	r, e := m.GetMaps("x/y/z", f)
+	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
+	assert.Equal(t, r, f, "Fallback is returned (ints)")
+}
+
+/*
+ * -------
+ * Get: Maps (list)
+ * -------
+ */
+
+var getSubsValueTests = []struct {
+	path     string
+	err      bool
+	expected interface{}
+}{
+	// from single int
+	{
+		path:     "scalar/realint",
+		err:      true,
+		expected: nil,
+	},
+	// from actual float
+	{
+		path:     "scalar/realfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable int string
+	{
+		path:     "scalar/stringint",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable float string
+	{
+		path:     "scalar/stringfloat",
+		err:      true,
+		expected: nil,
+	},
+	// from not regular string
+	{
+		path:     "foo/bar",
+		err:      true,
+		expected: nil,
+	},
+	// from parsable struct
+	{
+		path:     "foo/baz",
+		err:      true,
+		expected: nil,
+	},
+	// from array of ints
+	{
+		path:     "array/realints",
+		err:      true,
+		expected: nil,
+	},
+	// from array of floats
+	{
+		path:     "array/realfloats",
+		err:      true,
+		expected: nil,
+	},
+	// from array of ints
+	{
+		path:     "array/stringints",
+		err:      true,
+		expected: nil,
+	},
+	// from array of floats
+	{
+		path:     "array/stringfloats",
+		err:      true,
+		expected: nil,
+	},
+	// from array of floats
+	{
+		path:     "array/strings",
+		err:      true,
+		expected: nil,
+	},
+	// from empty array
+	{
+		path:     "array/empty",
+		err:      false,
+		expected: []*MapPath{},
+	},
+	// from invalid path
+	{
+		path:     "x/y/z",
+		err:      true,
+		expected: nil,
+	},
+	// from invalid path
+	{
+		path: "mixed/array2",
+		err:  false,
+		expected: []*MapPath{
+			NewMapPath(map[string]interface{}{
+				"foo": []int{1, 2, 3, 4},
+				"bar": []string{"one", "two"},
+			}),
+			NewMapPath(map[string]interface{}{
+				"foo": []int{11, 12, 13, 14},
+				"bar": []string{"five", "six"},
+			}),
+		},
+	},
+}
+
+func TestGetSubsValue(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getSubsValueTests {
+		r, e := m.GetSubs(test.path)
+		if test.err {
+			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
+			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
+		} else {
+			assert.Nil(t, e, fmt.Sprintf("NO error returned on %s (%+v)", test.path, r))
+		}
+		if test.expected == nil {
+			assert.Nil(t, r, fmt.Sprintf("Expected nil returned on %s", test.path))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("Expected value returned on %s", test.path))
+		}
+	}
+}
+
+func TestGetSubsValueFallback(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{})
+	f := []*MapPath{
+		NewMapPath(map[string]interface{}{
+			"foo": "bar",
+		}),
+		NewMapPath(map[string]interface{}{
+			"bar": "baz",
+		}),
+	}
+	r, e := m.GetSubs("x/y/z", f)
+	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
+	assert.Equal(t, r, f, "Fallback is returned (ints)")
+}
+
+/*
+ * -------
+ * Get: Array
+ * -------
+ */
+
+func TestGetUnsupportedArrayValueReturnsError(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	r, ok, e := m.GetArray(reflect.TypeOf(byte(0)), "array/realints")
+	_, isaUnsupportedTypeError := e.(UnsupportedTypeError)
+	assert.NotNil(t, e, "Error returned on unsupported type")
+	assert.True(t, isaUnsupportedTypeError, "Unsupported type error has been returned")
+	assert.Nil(t, r, "Result is nil")
+	assert.False(t, ok, "Not been found")
 }
 
 /*
@@ -627,5 +1400,17 @@ func TestInvalidTypeErrorFormat(t *testing.T) {
 	for _, test := range invalidTypeErrorFormatTests {
 		err := &InvalidTypeError{test.val, test.expect}
 		assert.Equal(t, err.Error(), test.msg, "Error correctly formatted")
+	}
+}
+
+var errorUnsupportedTypeTests = [][]string{
+	[]string{"int8", "Type int8 is not supported"},
+	[]string{"foo-bar", "Type foo-bar is not supported"},
+}
+
+func TestUnsupportedType(t *testing.T) {
+	for _, test := range errorUnsupportedTypeTests {
+		err := UnsupportedTypeError(test[0])
+		assert.Equal(t, err.Error(), test[1], "Error correctly formatted")
 	}
 }

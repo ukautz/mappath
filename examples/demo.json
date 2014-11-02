@@ -1,0 +1,30 @@
+{
+  "scalar": {
+    "realint": 123,
+    "realfloat": 234.567,
+    "stringint": "345",
+    "stringfloat": "456.789",
+    "string": "hello",
+    "map": {
+      "foo": "bar",
+      "baz": "bam"
+    }
+  },
+  "array": {
+    "realints": [1, 2, 3],
+    "realfloats": [4.04, 5.05, 6.06],
+    "stringints": [11, 12, 13],
+    "stringfloats": ["14.04", "15.05", "16.06"],
+    "strings": ["hello", "world"],
+    "maps": [{
+      "foo": "bar1",
+      "baz": "bam1"
+    },{
+      "foo": "bar2",
+      "baz": "bam2"
+    },{
+      "foo": "bar3",
+      "baz": "bam3"
+    }]
+  }
+}
