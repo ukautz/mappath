@@ -85,8 +85,7 @@ func (this *MapPath) Has(path string) bool {
 	return ok
 }
 
-// GetInt returns int value of path. If value cannot be parsed or converted to
-// int then an InvalidTypeError is returned
+// GetInt returns int value of path. If value cannot be parsed or converted then an InvalidTypeError is returned
 func (this *MapPath) GetInt(path string, fallback ...int) (int, error) {
 	var val interface{}
 	var err error
@@ -122,8 +121,7 @@ func (this *MapPath) GetInt(path string, fallback ...int) (int, error) {
 	return 0, &InvalidTypeError{val, "int"}
 }
 
-// GetFloat returns float64 value of path. If value cannot be parsed or converted to
-// float64 then an InvalidTypeError is returned
+// GetFloat returns float64 value of path. If value cannot be parsed or converted then an InvalidTypeError is returned
 func (this *MapPath) GetFloat(path string, fallback ...float64) (float64, error) {
 	var val interface{}
 	var err error
@@ -154,8 +152,7 @@ func (this *MapPath) GetFloat(path string, fallback ...float64) (float64, error)
 	return 0.0, &InvalidTypeError{val, "float64"}
 }
 
-// GetString returns string value of path. If value cannot be parsed or converted to
-// string then an InvalidTypeError is returned
+// GetString returns string value of path. If value cannot be converted then an InvalidTypeError is returned
 func (this *MapPath) GetString(path string, fallback ...string) (string, error) {
 	var val interface{}
 	var err error
@@ -183,8 +180,7 @@ func (this *MapPath) GetString(path string, fallback ...string) (string, error) 
 	return "", &InvalidTypeError{val, "float64"}
 }
 
-// GetMap returns map[string]interface{} value of path. If value cannot be parsed or converted to
-// map[string]interface{} then an InvalidTypeError is returned
+// GetMap returns the map value of path. If value is not a map then an InvalidTypeError is returned
 func (this *MapPath) GetMap(path string, fallback ...map[string]interface{}) (map[string]interface{}, error) {
 	var val interface{}
 	var err error
@@ -205,8 +201,8 @@ func (this *MapPath) GetMap(path string, fallback ...map[string]interface{}) (ma
 	return nil, &InvalidTypeError{val, "map"}
 }
 
-// GetSub return sub MapPath object representing a branch of the data tree
-// It does not support a fallback
+// GetSub return a new MapPath object representing the sub structure, which needs to be a map. If the sub structure
+// is of any other type then an InvalidTypeError is returned
 func (this *MapPath) GetSub(path string, fallback ...*MapPath) (*MapPath, error) {
 	branch, err := this.GetMap(path)
 	if err != nil {
@@ -219,7 +215,8 @@ func (this *MapPath) GetSub(path string, fallback ...*MapPath) (*MapPath, error)
 	return NewMapPath(branch), nil
 }
 
-// GetArray returns nested array of provided kind. Fallback values are not supported.
+// GetArray returns nested array of provided type. Fallback values are not supported.
+// If the path value is not an array then an InvalidTypeError is returned.
 // You should use the specialized methods (GetInts, GetStrings..) unless you know what you are doing.
 func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, bool, error) {
 	val, err := this.Get(path)
@@ -318,7 +315,8 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 	return result, true, nil
 }
 
-// Get
+// GetInts returns an array of int values. Tries to convert (eg float) or parse (string) values. If the
+// path value cannot be parsed or converted than an InvalidTypeError is returned.
 func (this *MapPath) GetInts(path string, fallback ...[]int) ([]int, error) {
 	res, found, err := this.GetArray(reflect.TypeOf(int(0)), path)
 	if err != nil {
@@ -332,6 +330,8 @@ func (this *MapPath) GetInts(path string, fallback ...[]int) ([]int, error) {
 	return res.([]int), nil
 }
 
+// GetFloats returns an array of float64 values. Tries to convert (eg int) or parse (string) values. If the
+// path value cannot be parsed or converted than an InvalidTypeError is returned.
 func (this *MapPath) GetFloats(path string, fallback ...[]float64) ([]float64, error) {
 	res, found, err := this.GetArray(reflect.TypeOf(float64(0.0)), path)
 	if err != nil {
@@ -345,6 +345,8 @@ func (this *MapPath) GetFloats(path string, fallback ...[]float64) ([]float64, e
 	return res.([]float64), nil
 }
 
+// GetStrings returns an array of string values. If the path value is incomaptible (eg map array) then an InvalidTypeError
+// is returned
 func (this *MapPath) GetStrings(path string, fallback ...[]string) ([]string, error) {
 	res, found, err := this.GetArray(reflect.TypeOf(string("")), path)
 	if err != nil {
@@ -358,7 +360,7 @@ func (this *MapPath) GetStrings(path string, fallback ...[]string) ([]string, er
 	return res.([]string), nil
 }
 
-// GetMaps returns list of maps, i.e. nested maps in an array
+// GetMaps returns a nested array of maps. If the path value is not an array of maps then an InvalidTypeError is returned.
 func (this *MapPath) GetMaps(path string, fallback ...[]map[string]interface{}) ([]map[string]interface{}, error) {
 	res, found, err := this.GetArray(reflect.TypeOf(map[string]interface{}{}), path)
 	if err != nil {
@@ -372,8 +374,7 @@ func (this *MapPath) GetMaps(path string, fallback ...[]map[string]interface{}) 
 	return res.([]map[string]interface{}), nil
 }
 
-// GetSubs return slist of MapPath sub objects
-//   // Structure
+// GetSubs returns a nested array of sub structures. If the path value is not an array of maps then an InvalidTypeError is returned.
 func (this *MapPath) GetSubs(path string, fallback ...[]*MapPath) ([]*MapPath, error) {
 	res, found, err := this.GetArray(reflect.TypeOf(map[string]interface{}{}), path)
 	if err != nil {
@@ -391,7 +392,6 @@ func (this *MapPath) GetSubs(path string, fallback ...[]*MapPath) ([]*MapPath, e
 	return subs, nil
 }
 
-// get
 func (this *MapPath) getBranch(pathParts []string, current map[string]interface{}) (interface{}, bool) {
 	name := pathParts[0]
 	val, ok := current[name]

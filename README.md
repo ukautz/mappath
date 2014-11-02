@@ -57,7 +57,7 @@ The above assumes a simple JSON file:
 
 ### Intialization
 
-The library works on any `map[string]interface{}` structures. Those can come from JSON/YAML files or anywhere else. The above example illustrates how to get easily started with an existing JSON file. Here is how you do it Go-only:
+The library works on `map[string]interface{}` structures. Those can come from JSON/YAML files or anywhere else. The above example illustrates how to get easily started with an existing JSON file. Here is how you do it Go-only:
 
 ```go
 mp := mappath.NewMapPath(map[string]interface{}{
@@ -101,7 +101,7 @@ result, err = mp.GetString("the/path")
 
 // get an array of string values
 // assumes a structure like: {"the":{"path":["foo","bar"}}
-result, err = mp.GetString("the/path")
+result, err = mp.GetStrings("the/path")
 
 // get a map value
 // assumes a structure like: {"the":{"path":{"foo":"bar"}}
@@ -109,18 +109,18 @@ result, err = mp.GetMap("the/path")
 
 // get an array of map values
 // assumes a structure like: {"the":{"path":[{"foo":"bar1"},{"foo":"bar2"}]}
-result, err = mp.GetMap("the/path")
+result, err = mp.GetMaps("the/path")
 ```
 
 ### Using sub structures
 
-For example, when iterating above an a structure like the following
+For example, when iterating a structure like the following
 
 ```json
 {
     "users":[
         {
-            "name":"Mr Kirk"
+            "name":"Cpt Kirk"
         },
         {
             "name":"Mr Spock"
@@ -131,7 +131,7 @@ For example, when iterating above an a structure like the following
     ]
 }
 ```
-Here is how:
+Here is how you can conveniently access the nested maps:
 
 ```go
 subs, err := mp.GetSubs("users")
@@ -144,18 +144,16 @@ for _, user := range subs {
 
 **`mappath.NotFoundError`**
 
-When accessing a path with any `Get` method, the result contains the (appropriate) `nil` value
-if the path cannot be found.
+Returned if the accessed path does not exist. The result will contain the appropriate `nil` value.
 
 **`mappath.InvalidTypeError`**
 
-If you use the type specific getter you could also try getting a value which cannot be convert. For example
-when trying to get an `int` of a string value like `foo bar`, or when you try to get a `string` but the
-path is actually a sub-structure.
+Returned if you get a path which exists but contains a value which can neither be converted nor parsed. For example:
+trying to get the `int` value of the string `foo bar`.
 
 **`mappath.UnsupportedTypeError`**
 
-Used when you try to get an array of a not supported type. At the moment, those are `int`, `float64`, `string` and `map[string]interface{}`.
+Returned on array getter. The currently supported types are: `int`, `float64`, `string` and `map[string]interface{}`.
 
 ### Convenience: Fallback values
 
