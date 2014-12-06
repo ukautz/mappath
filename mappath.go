@@ -196,6 +196,12 @@ func (this *MapPath) GetMap(path string, fallback ...map[string]interface{}) (ma
 	switch val.(type) {
 	case map[string]interface{}:
 		return val.(map[string]interface{}), nil
+	case map[interface{}]interface{}:
+		m := make(map[string]interface{})
+		for k, v := range val.(map[interface{}]interface{}) {
+			m[k.(string)] = v
+		}
+		return m, nil
 	}
 
 	return nil, &InvalidTypeError{val, "map"}
@@ -274,7 +280,7 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 					refResult.Index(i).Set(reflect.ValueOf(v))
 					break
 				default:
-					return nil, false, &InvalidTypeError{val, fmt.Sprintf("[%d] %s", i, refType.Kind())}
+					return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
 				}
 				break
 
@@ -289,7 +295,7 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 					refResult.Index(i).Set(reflect.ValueOf(v))
 					break
 				default:
-					return nil, false, &InvalidTypeError{val, fmt.Sprintf("[%d] %s", i, refType.Kind())}
+					return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
 				}
 				break
 
@@ -302,12 +308,22 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 				case reflect.Float64:
 					refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%.9f", val.Float())))
 					break
+				case reflect.String:
+					refResult.Index(i).Set(val)
+					break
+				case reflect.Interface:
+					s, ok := val.Interface().(string)
+					if !ok {
+						return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - interface", i)}
+					}
+					refResult.Index(i).Set(reflect.ValueOf(s))
+					break
 				default:
-					return nil, false, &InvalidTypeError{val, fmt.Sprintf("[%d] %s", i, refType.Kind())}
+					return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - %v", i, refType.Kind())}
 				}
 				break
 			default:
-				return nil, false, &InvalidTypeError{val, fmt.Sprintf("[%d] %s", i, refType.Kind())}
+				return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
 			}
 		}
 	}
@@ -416,7 +432,14 @@ func (this *MapPath) getNext(pathParts []string, val interface{}) (interface{}, 
 		t := reflect.TypeOf(val)
 		switch t.Kind() {
 		case reflect.Map:
-			return this.getBranch(pathParts[1:], val.(map[string]interface{}))
+			m, ok := val.(map[string]interface{})
+			if !ok {
+				m = make(map[string]interface{})
+				for k, v := range val.(map[interface{}]interface{}) {
+					m[fmt.Sprintf("%s", k)] = v
+				}
+			}
+			return this.getBranch(pathParts[1:], m)
 		case reflect.Slice:
 			return this.getArray(pathParts[1:], reflect.ValueOf(val))
 		default:
