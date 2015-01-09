@@ -352,6 +352,17 @@ func TestGetIntValueFallback(t *testing.T) {
 	assert.Equal(t, r, f, "Fallback is returned")
 }
 
+func TestGetIntSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getIntValueTests {
+		r := m.GetIntV(test.path)
+		if test.err {
+			assert.Equal(t, 0, r, "Nil value returned")
+		}
+		assert.Equal(t, test.expected, r, "Expected value returned")
+	}
+}
+
 /*
  * -------
  * Get: Float
@@ -435,6 +446,17 @@ func TestGetFloatValueFallback(t *testing.T) {
 	assert.Equal(t, r, f, "Fallback is returned")
 }
 
+func TestGetFloatSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getFloatValueTests {
+		r := m.GetFloatV(test.path)
+		if test.err {
+			assert.Equal(t, 0.0, r, "Nil result returned")
+		}
+		assert.Equal(t, test.expected, r, "Expected value returned")
+	}
+}
+
 /*
  * -------
  * Get: String
@@ -516,6 +538,17 @@ func TestGetStringValueFallback(t *testing.T) {
 	r, e := m.GetString("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
+}
+
+func TestGetStringSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getStringValueTests {
+		r := m.GetStringV(test.path)
+		if test.err {
+			assert.Equal(t, "", r, "Nil result returned")
+		}
+		assert.Equal(t, test.expected, r, "Expected value returned")
+	}
 }
 
 /*
@@ -609,9 +642,21 @@ func TestGetMapValueFallback(t *testing.T) {
 	assert.Equal(t, r, f, "Fallback is returned")
 }
 
+func TestGetMapSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for i, test := range getMapValueTests {
+		r := m.GetMapV(test.path)
+		if test.err {
+			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+		}
+	}
+}
+
 /*
  * -------
- * Get: Map
+ * Get: Sub
  * -------
  */
 
@@ -698,6 +743,18 @@ func TestGetSubValueFallback(t *testing.T) {
 	r, e := m.GetSub("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
+}
+
+func TestGetSubSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for i, test := range getSubValueTests {
+		r := m.GetSubV(test.path)
+		if test.err {
+			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+		}
+	}
 }
 
 /*
@@ -817,6 +874,18 @@ func TestGetIntsValueFallback(t *testing.T) {
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
 }
 
+func TestGetIntsSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for i, test := range getIntsValueTests {
+		r := m.GetIntsV(test.path)
+		if test.err {
+			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+		}
+	}
+}
+
 /*
  * -------
  * Get: Floats (list)
@@ -932,6 +1001,18 @@ func TestGetFloatsValueFallback(t *testing.T) {
 	r, e := m.GetFloats("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (floats)")
 	assert.Equal(t, r, f, "Fallback is returned (floats)")
+}
+
+func TestGetFloatsSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for i, test := range getFloatsValueTests {
+		r := m.GetFloatsV(test.path)
+		if test.err {
+			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+		}
+	}
 }
 
 /*
@@ -1055,6 +1136,18 @@ func TestGetStringsValueFallback(t *testing.T) {
 	r, e := m.GetStrings("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
+}
+
+func TestGetStringsSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for i, test := range getStringsValueTests {
+		r := m.GetStringsV(test.path)
+		if test.err {
+			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+		}
+	}
 }
 
 /*
@@ -1196,9 +1289,21 @@ func TestGetMapsValueFallback(t *testing.T) {
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
 }
 
+func TestGetMapsSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for i, test := range getMapsValueTests {
+		r := m.GetMapsV(test.path)
+		if test.err {
+			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+		}
+	}
+}
+
 /*
  * -------
- * Get: Maps (list)
+ * Get: Subs (list)
  * -------
  */
 
@@ -1333,6 +1438,18 @@ func TestGetSubsValueFallback(t *testing.T) {
 	r, e := m.GetSubs("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
+}
+
+func TestGetSubsSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for i, test := range getSubsValueTests {
+		r := m.GetSubsV(test.path)
+		if test.err {
+			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
+		} else {
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+		}
+	}
 }
 
 /*

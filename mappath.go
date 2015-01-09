@@ -121,6 +121,19 @@ func (this *MapPath) GetInt(path string, fallback ...int) (int, error) {
 	return 0, &InvalidTypeError{val, "int"}
 }
 
+// GetIntV returns int value of path. If value cannot be parsed or converted then fallback or 0 is returned. Handy in single value context.
+func (this *MapPath) GetIntV(path string, fallback ...int) int {
+	if val, err := this.GetInt(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return 0
+		}
+	} else {
+		return val
+	}
+}
+
 // GetFloat returns float64 value of path. If value cannot be parsed or converted then an InvalidTypeError is returned
 func (this *MapPath) GetFloat(path string, fallback ...float64) (float64, error) {
 	var val interface{}
@@ -152,6 +165,19 @@ func (this *MapPath) GetFloat(path string, fallback ...float64) (float64, error)
 	return 0.0, &InvalidTypeError{val, "float64"}
 }
 
+// GetFloatV returns float64 value of path. If value cannot be parsed or converted then fallback or 0.0 is returned. Handy in single value context.
+func (this *MapPath) GetFloatV(path string, fallback ...float64) float64 {
+	if val, err := this.GetFloat(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return 0.0
+		}
+	} else {
+		return val
+	}
+}
+
 // GetString returns string value of path. If value cannot be converted then an InvalidTypeError is returned
 func (this *MapPath) GetString(path string, fallback ...string) (string, error) {
 	var val interface{}
@@ -178,6 +204,19 @@ func (this *MapPath) GetString(path string, fallback ...string) (string, error) 
 	}
 
 	return "", &InvalidTypeError{val, "float64"}
+}
+
+// GetStringV returns string value of path. If value cannot be parsed or converted then fallback or "" is returned. Handy in single value context.
+func (this *MapPath) GetStringV(path string, fallback ...string) string {
+	if val, err := this.GetString(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return ""
+		}
+	} else {
+		return val
+	}
 }
 
 // GetMap returns the map value of path. If value is not a map then an InvalidTypeError is returned
@@ -207,6 +246,19 @@ func (this *MapPath) GetMap(path string, fallback ...map[string]interface{}) (ma
 	return nil, &InvalidTypeError{val, "map"}
 }
 
+// GetMapV returns map[string]interface{} value of path. If value cannot be parsed or converted then fallback or nil is returned. Handy in single value context.
+func (this *MapPath) GetMapV(path string, fallback ...map[string]interface{}) map[string]interface{} {
+	if val, err := this.GetMap(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return nil
+		}
+	} else {
+		return val
+	}
+}
+
 // GetSub return a new MapPath object representing the sub structure, which needs to be a map. If the sub structure
 // is of any other type then an InvalidTypeError is returned
 func (this *MapPath) GetSub(path string, fallback ...*MapPath) (*MapPath, error) {
@@ -219,6 +271,19 @@ func (this *MapPath) GetSub(path string, fallback ...*MapPath) (*MapPath, error)
 	}
 
 	return NewMapPath(branch), nil
+}
+
+// GetMapV returns *MapPath value of path. If value cannot be parsed or converted then fallback or nil is returned. Handy in single value context.
+func (this *MapPath) GetSubV(path string, fallback ...*MapPath) *MapPath {
+	if val, err := this.GetSub(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return nil
+		}
+	} else {
+		return val
+	}
 }
 
 // GetArray returns nested array of provided type. Fallback values are not supported.
@@ -346,6 +411,19 @@ func (this *MapPath) GetInts(path string, fallback ...[]int) ([]int, error) {
 	return res.([]int), nil
 }
 
+// GetIntsV returns []int value of path. If value cannot be parsed or converted then fallback or nil is returned. Handy in single value context.
+func (this *MapPath) GetIntsV(path string, fallback ...[]int) []int {
+	if val, err := this.GetInts(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return nil
+		}
+	} else {
+		return val
+	}
+}
+
 // GetFloats returns an array of float64 values. Tries to convert (eg int) or parse (string) values. If the
 // path value cannot be parsed or converted than an InvalidTypeError is returned.
 func (this *MapPath) GetFloats(path string, fallback ...[]float64) ([]float64, error) {
@@ -359,6 +437,19 @@ func (this *MapPath) GetFloats(path string, fallback ...[]float64) ([]float64, e
 		return []float64{}, nil
 	}
 	return res.([]float64), nil
+}
+
+// GetFloatsV returns []float64 value of path. If value cannot be parsed or converted then fallback or nil is returned. Handy in single value context.
+func (this *MapPath) GetFloatsV(path string, fallback ...[]float64) []float64 {
+	if val, err := this.GetFloats(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return nil
+		}
+	} else {
+		return val
+	}
 }
 
 // GetStrings returns an array of string values. If the path value is incomaptible (eg map array) then an InvalidTypeError
@@ -376,6 +467,19 @@ func (this *MapPath) GetStrings(path string, fallback ...[]string) ([]string, er
 	return res.([]string), nil
 }
 
+// GetStringsV returns []string value of path. If value cannot be parsed or converted then fallback or nil is returned. Handy in single value context.
+func (this *MapPath) GetStringsV(path string, fallback ...[]string) []string {
+	if val, err := this.GetStrings(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return nil
+		}
+	} else {
+		return val
+	}
+}
+
 // GetMaps returns a nested array of maps. If the path value is not an array of maps then an InvalidTypeError is returned.
 func (this *MapPath) GetMaps(path string, fallback ...[]map[string]interface{}) ([]map[string]interface{}, error) {
 	res, found, err := this.GetArray(reflect.TypeOf(map[string]interface{}{}), path)
@@ -388,6 +492,19 @@ func (this *MapPath) GetMaps(path string, fallback ...[]map[string]interface{}) 
 		return []map[string]interface{}{}, nil
 	}
 	return res.([]map[string]interface{}), nil
+}
+
+// GetMapsV returns []map[string]interface{} value of path. If value cannot be parsed or converted then fallback or nil is returned. Handy in single value context.
+func (this *MapPath) GetMapsV(path string, fallback ...[]map[string]interface{}) []map[string]interface{} {
+	if val, err := this.GetMaps(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return nil
+		}
+	} else {
+		return val
+	}
 }
 
 // GetSubs returns a nested array of sub structures. If the path value is not an array of maps then an InvalidTypeError is returned.
@@ -406,6 +523,19 @@ func (this *MapPath) GetSubs(path string, fallback ...[]*MapPath) ([]*MapPath, e
 		subs[i] = &MapPath{m}
 	}
 	return subs, nil
+}
+
+// GetSubsV returns []*MapPath value of path. If value cannot be parsed or converted then fallback or nil is returned. Handy in single value context.
+func (this *MapPath) GetSubsV(path string, fallback ...[]*MapPath) []*MapPath {
+	if val, err := this.GetSubs(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return nil
+		}
+	} else {
+		return val
+	}
 }
 
 func (this *MapPath) getBranch(pathParts []string, current map[string]interface{}) (interface{}, bool) {
