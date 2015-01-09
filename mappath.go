@@ -86,6 +86,68 @@ func (this *MapPath) Has(path string) bool {
 }
 
 // GetInt returns int value of path. If value cannot be parsed or converted then an InvalidTypeError is returned
+func (this *MapPath) GetBool(path string, fallback ...bool) (bool, error) {
+	var val interface{}
+	var err error
+	if len(fallback) > 0 {
+		val, err = this.Get(path, fallback[0])
+	} else {
+		val, err = this.Get(path)
+	}
+	if err != nil {
+		return false, err
+	}
+	switch reflect.TypeOf(val).Kind() {
+
+		case reflect.Bool:
+			return val.(bool), nil
+
+		case reflect.Int:
+			if val.(int) == 0 {
+				return false, nil
+			} else {
+				return true, nil
+			}
+
+		case reflect.Float64:
+			if val.(float64) == 0.0 {
+				return false, nil
+			} else {
+				return true, nil
+			}
+
+		case reflect.String:
+			switch val.(string) {
+				case "true":
+					return true, nil
+				case "yes":
+					return true, nil
+				case "false":
+					return false, nil
+				case "no":
+					return false, nil
+				default:
+					return false, fmt.Errorf("Cannot convert \"%s\" to bool (must be \"true\", \"yes\", \"false\" or \"no\")", val.(string))
+			}
+	}
+
+	return false, &InvalidTypeError{val, "bool"}
+}
+
+// GetBoolV returns bool value of path. If value cannot be parsed or converted then fallback or false is returned. Handy in single value context.
+func (this *MapPath) GetBoolV(path string, fallback ...bool) bool {
+	if val, err := this.GetBool(path, fallback...); err != nil {
+		if len(fallback) > 0 {
+			return fallback[0]
+		} else {
+			return false
+		}
+	} else {
+		return val
+	}
+}
+
+// GetInt returns int value of path. If value cannot be parsed or converted then an InvalidTypeError is returned
 func (this *MapPath) GetInt(path string, fallback ...int) (int, error) {
 	var val interface{}
 	var err error

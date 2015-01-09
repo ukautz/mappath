@@ -14,10 +14,8 @@ var defaultTest = map[string]interface{}{
 		"no": false,
 		"stringyes1": "true",
 		"stringyes2": "yes",
-		"stringyes3": "notworking",
 		"stringno1": "false",
 		"stringno2": "no",
-		"stringno3": "notworking",
 	},
 	"foo": map[string]interface{}{
 		"bar": "baz",
@@ -278,6 +276,131 @@ func TestUseGivenFallbackOnMissingPath(t *testing.T) {
 		r, e := m.Get(test.path, test.fallback)
 		assert.Equal(t, r, test.fallback, "Fallback is returned")
 		assert.Nil(t, e, "Error becomes nil")
+	}
+}
+/*
+ * -------
+ * Get: Bool
+ * -------
+ */
+
+var getBoolValueTests = []struct {
+	path     string
+	err      bool
+	expected interface{}
+}{
+	// from actual int
+	{
+		path:     "scalar/realint",
+		err:      false,
+		expected: true,
+	},
+	// from actual bool
+	{
+		path:     "bool/yes",
+		err:      false,
+		expected: true,
+	},
+	{
+		path:     "bool/no",
+		err:      false,
+		expected: false,
+	},
+	// from alternate bool
+	{
+		path:     "bool/stringyes1",
+		err:      false,
+		expected: true,
+	},
+	{
+		path:     "bool/stringyes2",
+		err:      false,
+		expected: true,
+	},
+	{
+		path:     "bool/stringno1",
+		err:      false,
+		expected: false,
+	},
+	{
+		path:     "bool/stringno2",
+		err:      false,
+		expected: false,
+	},
+	// from actual float
+	{
+		path:     "scalar/realfloat",
+		err:      false,
+		expected: true,
+	},
+	// from parsable int string
+	{
+		path:     "scalar/stringint",
+		err:      true,
+		expected: false,
+	},
+	// from parsable float string
+	{
+		path:     "scalar/stringfloat",
+		err:      true,
+		expected: false,
+	},
+	// from not parsable string
+	{
+		path:     "foo/bar",
+		err:      true,
+		expected: false,
+	},
+	// from not parsable struct
+	{
+		path:     "foo/baz",
+		err:      true,
+		expected: false,
+	},
+	// from not parsable array
+	{
+		path:     "array/realints",
+		err:      true,
+		expected: false,
+	},
+	// from invalid path
+	{
+		path:     "x/y/z",
+		err:      true,
+		expected: false,
+	},
+}
+
+func TestGetBoolValue(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getBoolValueTests {
+		r, e := m.GetBool(test.path)
+		if test.err {
+			assert.NotNil(t, e, "Error returned OK")
+			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded")
+		} else {
+			assert.Nil(t, e, "NO error returned")
+		}
+		assert.Equal(t, test.expected, r, "Expected value returned")
+	}
+}
+
+func TestGetBoolValueFallback(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{})
+	f := true
+	r, e := m.GetBool("x/y/z", f)
+	assert.Nil(t, e, "No error when fallback used on invalid path")
+	assert.Equal(t, r, f, "Fallback is returned")
+}
+
+func TestGetBoolSingleContext(t *testing.T) {
+	m := NewMapPath(defaultTest)
+	for _, test := range getBoolValueTests {
+		r := m.GetBoolV(test.path)
+		if test.err {
+			assert.Equal(t, false, r, "Nil value returned")
+		}
+		assert.Equal(t, test.expected, r, "Expected value returned")
 	}
 }
 
