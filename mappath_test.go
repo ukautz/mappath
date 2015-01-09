@@ -9,6 +9,16 @@ import (
 
 var defaultTest = map[string]interface{}{
 	"hello": "world",
+	"bool": map[string]interface{}{
+		"yes": true,
+		"no": false,
+		"stringyes1": "true",
+		"stringyes2": "yes",
+		"stringyes3": "notworking",
+		"stringno1": "false",
+		"stringno2": "no",
+		"stringno3": "notworking",
+	},
 	"foo": map[string]interface{}{
 		"bar": "baz",
 		"baz": map[string]interface{}{
@@ -19,8 +29,10 @@ var defaultTest = map[string]interface{}{
 		"empty":        []interface{}{},
 		"realints":     []int{1, 2, 3, 4},
 		"realfloats":   []float64{1.01, 2.02, 3.03, 4.04},
+		"realbools":    []bool{true, true, false, false},
 		"stringints":   []string{"1", "2", "3", "4"},
 		"stringfloats": []string{"1.01", "2.02", "3.03", "4.04"},
+		"stringbools":  []string{"true", "yes", "false", "no"},
 		"strings":      []string{"foo", "bar", "baz"}},
 	"3d-array": [][][]int{
 		[][]int{
@@ -286,6 +298,17 @@ var getIntValueTests = []struct {
 		err:      false,
 		expected: 123,
 	},
+	// from actual bool
+	{
+		path:     "bool/yes",
+		err:      false,
+		expected: 1,
+	},
+	{
+		path:     "bool/no",
+		err:      false,
+		expected: 0,
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -379,6 +402,17 @@ var getFloatValueTests = []struct {
 		path:     "scalar/realint",
 		err:      false,
 		expected: 123.0,
+	},
+	// from actual bool
+	{
+		path:     "bool/yes",
+		err:      false,
+		expected: 1.0,
+	},
+	{
+		path:     "bool/no",
+		err:      false,
+		expected: 0.0,
 	},
 	// from actual float
 	{
@@ -474,6 +508,17 @@ var getStringValueTests = []struct {
 		err:      false,
 		expected: "123",
 	},
+	// from actual bool
+	{
+		path:     "bool/yes",
+		err:      false,
+		expected: "true",
+	},
+	{
+		path:     "bool/no",
+		err:      false,
+		expected: "false",
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -565,6 +610,12 @@ var getMapValueTests = []struct {
 	// from actual int
 	{
 		path:     "scalar/realint",
+		err:      true,
+		expected: nil,
+	},
+	// from actual bool
+	{
+		path:     "bool/yes",
 		err:      true,
 		expected: nil,
 	},
@@ -671,6 +722,12 @@ var getSubValueTests = []struct {
 		err:      true,
 		expected: nil,
 	},
+	// from actual bool
+	{
+		path:     "bool/yes",
+		err:      true,
+		expected: nil,
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -774,6 +831,12 @@ var getIntsValueTests = []struct {
 		err:      true,
 		expected: nil,
 	},
+	// from single bool
+	{
+		path:     "bool/yes",
+		err:      true,
+		expected: nil,
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -809,6 +872,12 @@ var getIntsValueTests = []struct {
 		path:     "array/realints",
 		err:      false,
 		expected: []int{1, 2, 3, 4},
+	},
+	// from array of bools
+	{
+		path:     "array/realbools",
+		err:      false,
+		expected: []int{1, 1, 0, 0},
 	},
 	// from array of floats
 	{
@@ -903,6 +972,12 @@ var getFloatsValueTests = []struct {
 		err:      true,
 		expected: nil,
 	},
+	// from single bool
+	{
+		path:     "bool/yes",
+		err:      true,
+		expected: nil,
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -938,6 +1013,12 @@ var getFloatsValueTests = []struct {
 		path:     "array/realints",
 		err:      false,
 		expected: []float64{1.0, 2.0, 3.0, 4.0},
+	},
+	// from array of bools
+	{
+		path:     "array/realbools",
+		err:      false,
+		expected: []float64{1.0, 1.0, 0.0, 0.0},
 	},
 	// from array of floats
 	{
@@ -1032,6 +1113,12 @@ var getStringsValueTests = []struct {
 		err:      true,
 		expected: nil,
 	},
+	// from single bool
+	{
+		path:     "bool/yes",
+		err:      true,
+		expected: nil,
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -1067,6 +1154,12 @@ var getStringsValueTests = []struct {
 		path:     "array/realints",
 		err:      false,
 		expected: []string{"1", "2", "3", "4"},
+	},
+	// from array of bools
+	{
+		path:     "array/realbools",
+		err:      false,
+		expected: []string{"true", "true", "false", "false"},
 	},
 	// from array of floats
 	{
@@ -1167,6 +1260,12 @@ var getMapsValueTests = []struct {
 		err:      true,
 		expected: nil,
 	},
+	// from single bool
+	{
+		path:     "bool/yes",
+		err:      true,
+		expected: nil,
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -1200,6 +1299,12 @@ var getMapsValueTests = []struct {
 	// from array of ints
 	{
 		path:     "array/realints",
+		err:      true,
+		expected: nil,
+	},
+	// from array of bools
+	{
+		path:     "array/realbools",
 		err:      true,
 		expected: nil,
 	},
@@ -1318,6 +1423,12 @@ var getSubsValueTests = []struct {
 		err:      true,
 		expected: nil,
 	},
+	// from single bool
+	{
+		path:     "bool/yes",
+		err:      true,
+		expected: nil,
+	},
 	// from actual float
 	{
 		path:     "scalar/realfloat",
@@ -1351,6 +1462,12 @@ var getSubsValueTests = []struct {
 	// from array of ints
 	{
 		path:     "array/realints",
+		err:      true,
+		expected: nil,
+	},
+	// from array of bools
+	{
+		path:     "array/realbools",
 		err:      true,
 		expected: nil,
 	},

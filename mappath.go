@@ -99,23 +99,30 @@ func (this *MapPath) GetInt(path string, fallback ...int) (int, error) {
 	}
 
 	switch reflect.TypeOf(val).Kind() {
-
-	case reflect.String:
-		r, err := strconv.Atoi(val.(string))
-		if err != nil {
-			r, ferr := strconv.ParseFloat(val.(string), 64)
-			if ferr == nil {
-				return int(r), nil
+		case reflect.Bool:
+			r := val.(bool)
+			if r {
+				return 1, nil
+			} else {
+				return 0, nil
 			}
-			return 0, err
-		}
-		return r, nil
 
-	case reflect.Int:
-		return val.(int), nil
+		case reflect.String:
+			r, err := strconv.Atoi(val.(string))
+			if err != nil {
+				r, ferr := strconv.ParseFloat(val.(string), 64)
+				if ferr == nil {
+					return int(r), nil
+				}
+				return 0, err
+			}
+			return r, nil
 
-	case reflect.Float64:
-		return int(val.(float64)), nil
+		case reflect.Int:
+			return val.(int), nil
+
+		case reflect.Float64:
+			return int(val.(float64)), nil
 	}
 
 	return 0, &InvalidTypeError{val, "int"}
@@ -148,18 +155,26 @@ func (this *MapPath) GetFloat(path string, fallback ...float64) (float64, error)
 	}
 	switch reflect.TypeOf(val).Kind() {
 
-	case reflect.String:
-		r, err := strconv.ParseFloat(val.(string), 64)
-		if err != nil {
-			return 0.0, err
-		}
-		return r, nil
+		case reflect.Bool:
+			r := val.(bool)
+			if r {
+				return 1.0, nil
+			} else {
+				return 0.0, nil
+			}
 
-	case reflect.Float64:
-		return val.(float64), nil
+		case reflect.String:
+			r, err := strconv.ParseFloat(val.(string), 64)
+			if err != nil {
+				return 0.0, err
+			}
+			return r, nil
 
-	case reflect.Int:
-		return float64(val.(int)), nil
+		case reflect.Float64:
+			return val.(float64), nil
+
+		case reflect.Int:
+			return float64(val.(int)), nil
 	}
 
 	return 0.0, &InvalidTypeError{val, "float64"}
@@ -192,14 +207,21 @@ func (this *MapPath) GetString(path string, fallback ...string) (string, error) 
 	}
 	switch reflect.TypeOf(val).Kind() {
 
-	case reflect.String:
-		return val.(string), nil
+		case reflect.Bool:
+			if val.(bool) {
+				return "true", nil
+			} else {
+				return "false", nil
+			}
 
-	case reflect.Float64:
-		return fmt.Sprintf("%.9f", val.(float64)), nil
+		case reflect.String:
+			return val.(string), nil
 
-	case reflect.Int:
-		return fmt.Sprintf("%d", val.(int)), nil
+		case reflect.Float64:
+			return fmt.Sprintf("%.9f", val.(float64)), nil
+
+		case reflect.Int:
+			return fmt.Sprintf("%d", val.(int)), nil
 
 	}
 
@@ -233,14 +255,14 @@ func (this *MapPath) GetMap(path string, fallback ...map[string]interface{}) (ma
 	}
 
 	switch val.(type) {
-	case map[string]interface{}:
-		return val.(map[string]interface{}), nil
-	case map[interface{}]interface{}:
-		m := make(map[string]interface{})
-		for k, v := range val.(map[interface{}]interface{}) {
-			m[k.(string)] = v
-		}
-		return m, nil
+		case map[string]interface{}:
+			return val.(map[string]interface{}), nil
+		case map[interface{}]interface{}:
+			m := make(map[string]interface{})
+			for k, v := range val.(map[interface{}]interface{}) {
+				m[k.(string)] = v
+			}
+			return m, nil
 	}
 
 	return nil, &InvalidTypeError{val, "map"}
@@ -303,21 +325,21 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 	}
 
 	var result interface{}
-	switch refType.Kind() {
-	case reflect.Int:
-		result = make([]int, refVal.Len())
-		break
-	case reflect.Float64:
-		result = make([]float64, refVal.Len())
-		break
-	case reflect.String:
-		result = make([]string, refVal.Len())
-		break
-	case reflect.Map:
-		result = make([]map[string]interface{}, refVal.Len())
-		break
-	default:
-		return nil, false, UnsupportedTypeError(refType.Kind().String())
+		switch refType.Kind() {
+		case reflect.Int:
+			result = make([]int, refVal.Len())
+			break
+		case reflect.Float64:
+			result = make([]float64, refVal.Len())
+			break
+		case reflect.String:
+			result = make([]string, refVal.Len())
+			break
+		case reflect.Map:
+			result = make([]map[string]interface{}, refVal.Len())
+			break
+		default:
+			return nil, false, UnsupportedTypeError(refType.Kind().String())
 	}
 	refResult := reflect.ValueOf(result)
 
@@ -330,65 +352,86 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 			// must convert or parse item
 			switch refType.Kind() {
 
-			// expecting []int
-			case reflect.Int:
-				switch val.Kind() {
-				case reflect.Float64:
-					refResult.Index(i).Set(refVal.Index(i).Convert(refType))
-					break
-				case reflect.String:
-					v, eint := strconv.Atoi(refVal.Index(i).String())
-					if eint != nil {
-						f, _ := strconv.ParseFloat(refVal.Index(i).String(), 64)
-						v = int(f)
+				// expecting []int
+				case reflect.Int:
+					switch val.Kind() {
+						case reflect.Bool:
+							if refVal.Index(i).Bool() {
+								refResult.Index(i).Set(reflect.ValueOf(1))
+							} else {
+								refResult.Index(i).Set(reflect.ValueOf(0))
+							}
+							break
+						case reflect.Float64:
+							refResult.Index(i).Set(refVal.Index(i).Convert(refType))
+							break
+						case reflect.String:
+							v, eint := strconv.Atoi(refVal.Index(i).String())
+							if eint != nil {
+								f, _ := strconv.ParseFloat(refVal.Index(i).String(), 64)
+								v = int(f)
+							}
+							refResult.Index(i).Set(reflect.ValueOf(v))
+							break
+						default:
+							return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
 					}
-					refResult.Index(i).Set(reflect.ValueOf(v))
+					break
+
+					// expecting []float64
+				case reflect.Float64:
+					switch val.Kind() {
+						case reflect.Bool:
+							if refVal.Index(i).Bool() {
+								refResult.Index(i).Set(reflect.ValueOf(1.0))
+							} else {
+								refResult.Index(i).Set(reflect.ValueOf(0.0))
+							}
+							break
+						case reflect.Int:
+							refResult.Index(i).Set(refVal.Index(i).Convert(refType))
+							break
+						case reflect.String:
+							v, _ := strconv.ParseFloat(refVal.Index(i).String(), 64)
+							refResult.Index(i).Set(reflect.ValueOf(v))
+							break
+						default:
+							return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
+						}
+					break
+
+					// expecting []string
+				case reflect.String:
+					switch val.Kind() {
+						case reflect.Bool:
+							if refVal.Index(i).Bool() {
+								refResult.Index(i).Set(reflect.ValueOf("true"))
+							} else {
+								refResult.Index(i).Set(reflect.ValueOf("false"))
+							}
+						break
+						case reflect.Int:
+							refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%d", val.Int())))
+							break
+						case reflect.Float64:
+							refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%.9f", val.Float())))
+							break
+						case reflect.String:
+							refResult.Index(i).Set(val)
+							break
+						case reflect.Interface:
+							s, ok := val.Interface().(string)
+							if !ok {
+								return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - interface", i)}
+							}
+							refResult.Index(i).Set(reflect.ValueOf(s))
+							break
+						default:
+							return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - %v", i, refType.Kind())}
+					}
 					break
 				default:
 					return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
-				}
-				break
-
-				// expecting []float64
-			case reflect.Float64:
-				switch val.Kind() {
-				case reflect.Int:
-					refResult.Index(i).Set(refVal.Index(i).Convert(refType))
-					break
-				case reflect.String:
-					v, _ := strconv.ParseFloat(refVal.Index(i).String(), 64)
-					refResult.Index(i).Set(reflect.ValueOf(v))
-					break
-				default:
-					return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
-				}
-				break
-
-				// expecting []string
-			case reflect.String:
-				switch val.Kind() {
-				case reflect.Int:
-					refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%d", val.Int())))
-					break
-				case reflect.Float64:
-					refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%.9f", val.Float())))
-					break
-				case reflect.String:
-					refResult.Index(i).Set(val)
-					break
-				case reflect.Interface:
-					s, ok := val.Interface().(string)
-					if !ok {
-						return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - interface", i)}
-					}
-					refResult.Index(i).Set(reflect.ValueOf(s))
-					break
-				default:
-					return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - %v", i, refType.Kind())}
-				}
-				break
-			default:
-				return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
 			}
 		}
 	}
