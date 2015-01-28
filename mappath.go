@@ -7,6 +7,36 @@ import (
 	"strings"
 )
 
+
+var kindsString = []reflect.Kind{
+	reflect.String,
+}
+var kindsInt = []reflect.Kind{
+	reflect.Int,
+	reflect.Int16,
+	reflect.Int32,
+	reflect.Int64,
+	reflect.Int8,
+	reflect.Uint,
+	reflect.Uint16,
+	reflect.Uint32,
+	reflect.Uint64,
+	reflect.Uint8,
+}
+var kindsFloat = []reflect.Kind{
+	reflect.Float64,
+	reflect.Float32,
+}
+
+func isOfKind(is reflect.Kind, anyOf []reflect.Kind) bool {
+	for _, c := range anyOf {
+		if is == c {
+			return true
+		}
+	}
+	return false
+}
+
 /*
  * ------
  * Types
@@ -77,6 +107,56 @@ func (this *MapPath) Get(path string, fallback ...interface{}) (interface{}, err
 		return fallback[0], nil
 	}
 	return nil, NotFoundError(path)
+}
+
+func (this *MapPath) GetAs(path string, typ reflect.Type, fallback ...interface{}) (interface{}, error) {
+	val, err := this.Get(path, fallback...)
+	if err != nil {
+		return nil, err
+	}
+	kind := typ.Kind()
+	valRef := reflect.ValueOf(val)
+	valKind := valRef.Kind()
+
+	switch {
+		case isOfKind(kind, kindsString):
+			switch {
+				case isOfKind(valKind, kindsString):
+					return val, nil
+				case isOfKind(valKind, kindsInt):
+					return fmt.Sprintf("%d", val), nil
+				case isOfKind(valKind, kindsFloat):
+					return fmt.Sprintf("%f", val), nil
+				default:
+					return fmt.Sprintf("%v", val), nil
+			}
+		case isOfKind(kind, kindsInt):
+			switch {
+				case isOfKind(valKind, kindsString):
+					p, err := strconv.Atoi(val.(string))
+					return p, err
+				case isOfKind(valKind, kindsInt):
+					return valRef.Convert(typ).Interface(), nil
+				case isOfKind(valKind, kindsFloat):
+					return valRef.Convert(typ).Interface(), nil
+				default:
+					return 0, &InvalidTypeError{val, "int"}
+			}
+		case isOfKind(kind, kindsFloat):
+			switch {
+				case isOfKind(valKind, kindsString):
+					p, err := strconv.ParseFloat(val.(string), 64)
+					return p, err
+				case isOfKind(valKind, kindsInt):
+					return valRef.Convert(typ).Interface(), nil
+				case isOfKind(valKind, kindsFloat):
+					return valRef.Convert(typ).Interface(), nil
+				default:
+					return 0.0, &InvalidTypeError{val, "float64"}
+			}
+		default:
+			return nil, &InvalidTypeError{val, strings.ToLower(kind.String())}
+	}
 }
 
 // Has check whether the given path exists
