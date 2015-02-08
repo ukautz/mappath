@@ -467,7 +467,7 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 	}
 
 	var result interface{}
-		switch refType.Kind() {
+	switch refType.Kind() {
 		case reflect.Int:
 			result = make([]int, refVal.Len())
 			break
@@ -481,13 +481,13 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 			result = make([]map[string]interface{}, refVal.Len())
 			break
 		default:
-			return nil, false, UnsupportedTypeError(refType.Kind().String())
+			return nil, false, UnsupportedTypeError(refType.Kind().String()+ "@1")
 	}
 	refResult := reflect.ValueOf(result)
 
 	for i := 0; i < refVal.Len(); i++ {
-		val := refVal.Index(i)
-		if refType.Kind() == val.Kind() {
+		itemRef := refVal.Index(i)
+		if refType.Kind() == itemRef.Kind() {
 			refResult.Index(i).Set(refVal.Index(i))
 		} else {
 
@@ -496,7 +496,7 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 
 				// expecting []int
 				case reflect.Int:
-					switch val.Kind() {
+					switch itemRef.Kind() {
 						case reflect.Bool:
 							if refVal.Index(i).Bool() {
 								refResult.Index(i).Set(reflect.ValueOf(1))
@@ -516,13 +516,13 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 							refResult.Index(i).Set(reflect.ValueOf(v))
 							break
 						default:
-							return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
+							return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@2", i, refType.Kind())}
 					}
 					break
 
 					// expecting []float64
 				case reflect.Float64:
-					switch val.Kind() {
+					switch itemRef.Kind() {
 						case reflect.Bool:
 							if refVal.Index(i).Bool() {
 								refResult.Index(i).Set(reflect.ValueOf(1.0))
@@ -538,13 +538,13 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 							refResult.Index(i).Set(reflect.ValueOf(v))
 							break
 						default:
-							return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
+							return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@3", i, refType.Kind())}
 						}
 					break
 
 					// expecting []string
 				case reflect.String:
-					switch val.Kind() {
+					switch itemRef.Kind() {
 						case reflect.Bool:
 							if refVal.Index(i).Bool() {
 								refResult.Index(i).Set(reflect.ValueOf("true"))
@@ -553,27 +553,38 @@ func (this *MapPath) GetArray(refType reflect.Type, path string) (interface{}, b
 							}
 						break
 						case reflect.Int:
-							refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%d", val.Int())))
+							refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%d", itemRef.Int())))
 							break
 						case reflect.Float64:
-							refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%.9f", val.Float())))
+							refResult.Index(i).Set(reflect.ValueOf(fmt.Sprintf("%.9f", itemRef.Float())))
 							break
 						case reflect.String:
-							refResult.Index(i).Set(val)
+							refResult.Index(i).Set(itemRef)
 							break
 						case reflect.Interface:
-							s, ok := val.Interface().(string)
+							s, ok := itemRef.Interface().(string)
 							if !ok {
-								return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - interface", i)}
+								return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@4 - interface", i)}
 							}
 							refResult.Index(i).Set(reflect.ValueOf(s))
 							break
 						default:
-							return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s> - %v", i, refType.Kind())}
+							return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@5 - %v", i, refType.Kind())}
 					}
 					break
+
+					// expecting []map[string]interface{}
+				case reflect.Map:
+					mapVal, ok := refVal.Index(i).Interface().(map[string]interface{})
+					if !ok {
+						return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@6", i, refType.Kind())}
+					}
+					refResult.Index(i).Set(reflect.ValueOf(mapVal))
+					break
+
+					// oops
 				default:
-					return nil, false, &InvalidTypeError{val.Interface(), fmt.Sprintf("[%d]array<%s>", i, refType.Kind())}
+					return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@7", i, refType.Kind())}
 			}
 		}
 	}

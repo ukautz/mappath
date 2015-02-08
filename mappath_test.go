@@ -61,6 +61,15 @@ var defaultTest = map[string]interface{}{
 		"realint":     123,
 		"realfloat":   123.456,
 	},
+
+	"top-level-maps": []map[string]interface{}{
+		map[string]interface{}{
+			"foo": "bar1",
+		},
+		map[string]interface{}{
+			"foo": "bar2",
+		},
+	},
 }
 
 /*
@@ -1467,7 +1476,7 @@ var getMapsValueTests = []struct {
 		err:      true,
 		expected: nil,
 	},
-	// from invalid path
+	// from maps array
 	{
 		path: "mixed/array2",
 		err:  false,
@@ -1479,6 +1488,19 @@ var getMapsValueTests = []struct {
 			map[string]interface{}{
 				"foo": []int{11, 12, 13, 14},
 				"bar": []string{"five", "six"},
+			},
+		},
+	},
+	// from top level maps
+	{
+		path: "top-level-maps",
+		err:  false,
+		expected: []map[string]interface{}{
+			map[string]interface{}{
+				"foo": "bar1",
+			},
+			map[string]interface{}{
+				"foo": "bar2",
 			},
 		},
 	},
