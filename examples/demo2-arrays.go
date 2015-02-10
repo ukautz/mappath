@@ -29,7 +29,7 @@ func main() {
 	})
 
 	fmt.Println("Reading int array")
-	ints, err := c.GetInts("ints")
+	ints, err := c.Ints("ints")
 	if err != nil {
 		fmt.Printf("  Error getting int array: %+v\n", err)
 	} else {
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	fmt.Println("\nReading float array")
-	floats, err := c.GetFloats("floats")
+	floats, err := c.Floats("floats")
 	if err != nil {
 		fmt.Printf("  Error getting float array: %+v\n", err)
 	} else {
@@ -49,7 +49,7 @@ func main() {
 	}
 
 	fmt.Println("\nReading string array")
-	strings, err := c.GetStrings("strings")
+	strings, err := c.Strings("strings")
 	if err != nil {
 		fmt.Printf("  Error getting string array: %+v\n", err)
 	} else {
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	fmt.Println("\nReading map array")
-	maps, err := c.GetMaps("maps")
+	maps, err := c.Maps("maps")
 	if err != nil {
 		fmt.Printf("  Error getting map array: %+v\n", err)
 	} else {
@@ -69,12 +69,12 @@ func main() {
 	}
 
 	fmt.Println("\nReading sub array")
-	subs, err := c.GetSubs("maps")
+	subs, err := c.Childs("maps")
 	if err != nil {
 		fmt.Printf("  Error getting sub array: %+v\n", err)
 	} else {
 		for i, sub := range subs {
-			foo, _ := sub.GetString("foo")
+			foo, _ := sub.String("foo")
 			fmt.Printf("  Sub %d is: %+v and value of foo is \"%s\"\n", i, sub.Root(), foo)
 		}
 	}

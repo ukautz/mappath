@@ -383,7 +383,7 @@ var getBoolValueTests = []struct {
 func TestGetBoolValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getBoolValueTests {
-		r, e := m.GetBool(test.path)
+		r, e := m.Bool(test.path)
 		if test.err {
 			assert.NotNil(t, e, "Error returned OK")
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded")
@@ -397,7 +397,7 @@ func TestGetBoolValue(t *testing.T) {
 func TestGetBoolValueFallback(t *testing.T) {
 	m := NewMapPath(map[string]interface{}{})
 	f := true
-	r, e := m.GetBool("x/y/z", f)
+	r, e := m.Bool("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
 }
@@ -405,7 +405,7 @@ func TestGetBoolValueFallback(t *testing.T) {
 func TestGetBoolSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getBoolValueTests {
-		r := m.GetBoolV(test.path)
+		r := m.BoolV(test.path)
 		if test.err {
 			assert.Equal(t, false, r, "Nil value returned")
 		}
@@ -488,7 +488,7 @@ var getIntValueTests = []struct {
 func TestGetIntValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getIntValueTests {
-		r, e := m.GetInt(test.path)
+		r, e := m.Int(test.path)
 		if test.err {
 			assert.NotNil(t, e, "Error returned OK")
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded")
@@ -502,7 +502,7 @@ func TestGetIntValue(t *testing.T) {
 func TestGetIntValueFallback(t *testing.T) {
 	m := NewMapPath(map[string]interface{}{})
 	f := 345
-	r, e := m.GetInt("x/y/z", f)
+	r, e := m.Int("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
 }
@@ -510,7 +510,7 @@ func TestGetIntValueFallback(t *testing.T) {
 func TestGetIntSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getIntValueTests {
-		r := m.GetIntV(test.path)
+		r := m.IntV(test.path)
 		if test.err {
 			assert.Equal(t, 0, r, "Nil value returned")
 		}
@@ -593,7 +593,7 @@ var getFloatValueTests = []struct {
 func TestGetFloatValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getFloatValueTests {
-		r, e := m.GetFloat(test.path)
+		r, e := m.Float(test.path)
 		if test.err {
 			assert.NotNil(t, e, "Error returned OK")
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded")
@@ -607,7 +607,7 @@ func TestGetFloatValue(t *testing.T) {
 func TestGetFloatValueFallback(t *testing.T) {
 	m := NewMapPath(map[string]interface{}{})
 	f := 345.678
-	r, e := m.GetFloat("x/y/z", f)
+	r, e := m.Float("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
 }
@@ -615,7 +615,7 @@ func TestGetFloatValueFallback(t *testing.T) {
 func TestGetFloatSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getFloatValueTests {
-		r := m.GetFloatV(test.path)
+		r := m.FloatV(test.path)
 		if test.err {
 			assert.Equal(t, 0.0, r, "Nil result returned")
 		}
@@ -698,7 +698,7 @@ var getStringValueTests = []struct {
 func TestGetStringValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getStringValueTests {
-		r, e := m.GetString(test.path)
+		r, e := m.String(test.path)
 		if test.err {
 			assert.NotNil(t, e, "Error returned OK")
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded")
@@ -712,7 +712,7 @@ func TestGetStringValue(t *testing.T) {
 func TestGetStringValueFallback(t *testing.T) {
 	m := NewMapPath(map[string]interface{}{})
 	f := "foo"
-	r, e := m.GetString("x/y/z", f)
+	r, e := m.String("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
 }
@@ -720,7 +720,7 @@ func TestGetStringValueFallback(t *testing.T) {
 func TestGetStringSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getStringValueTests {
-		r := m.GetStringV(test.path)
+		r := m.StringV(test.path)
 		if test.err {
 			assert.Equal(t, "", r, "Nil result returned")
 		}
@@ -800,7 +800,7 @@ var getMapValueTests = []struct {
 func TestGetMapValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getMapValueTests {
-		r, e := m.GetMap(test.path)
+		r, e := m.Map(test.path)
 		if test.err {
 			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
@@ -820,7 +820,7 @@ func TestGetMapValueFallback(t *testing.T) {
 	f := map[string]interface{}{
 		"foo": "bar",
 	}
-	r, e := m.GetMap("x/y/z", f)
+	r, e := m.Map("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
 }
@@ -828,7 +828,7 @@ func TestGetMapValueFallback(t *testing.T) {
 func TestGetMapSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for i, test := range getMapValueTests {
-		r := m.GetMapV(test.path)
+		r := m.MapV(test.path)
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
@@ -909,7 +909,7 @@ var getSubValueTests = []struct {
 func TestGetSubValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getSubValueTests {
-		r, e := m.GetSub(test.path)
+		r, e := m.Child(test.path)
 		if test.err {
 			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
@@ -929,7 +929,7 @@ func TestGetSubValueFallback(t *testing.T) {
 	f := NewMapPath(map[string]interface{}{
 		"foo": "bar",
 	})
-	r, e := m.GetSub("x/y/z", f)
+	r, e := m.Child("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path")
 	assert.Equal(t, r, f, "Fallback is returned")
 }
@@ -937,7 +937,7 @@ func TestGetSubValueFallback(t *testing.T) {
 func TestGetSubSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for i, test := range getSubValueTests {
-		r := m.GetSubV(test.path)
+		r := m.ChildV(test.path)
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
@@ -1052,7 +1052,7 @@ var getIntsValueTests = []struct {
 func TestGetIntsValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getIntsValueTests {
-		r, e := m.GetInts(test.path)
+		r, e := m.Ints(test.path)
 		if test.err {
 			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
@@ -1070,7 +1070,7 @@ func TestGetIntsValue(t *testing.T) {
 func TestGetIntsValueFallback(t *testing.T) {
 	m := NewMapPath(map[string]interface{}{})
 	f := []int{2, 3, 4}
-	r, e := m.GetInts("x/y/z", f)
+	r, e := m.Ints("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
 }
@@ -1078,7 +1078,7 @@ func TestGetIntsValueFallback(t *testing.T) {
 func TestGetIntsSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for i, test := range getIntsValueTests {
-		r := m.GetIntsV(test.path)
+		r := m.IntsV(test.path)
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
@@ -1193,7 +1193,7 @@ var getFloatsValueTests = []struct {
 func TestGetFloatsValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getFloatsValueTests {
-		r, e := m.GetFloats(test.path)
+		r, e := m.Floats(test.path)
 		if test.err {
 			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
@@ -1211,7 +1211,7 @@ func TestGetFloatsValue(t *testing.T) {
 func TestGetFloatsValueFallback(t *testing.T) {
 	m := NewMapPath(map[string]interface{}{})
 	f := []float64{2.02, 3.03, 4.04}
-	r, e := m.GetFloats("x/y/z", f)
+	r, e := m.Floats("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (floats)")
 	assert.Equal(t, r, f, "Fallback is returned (floats)")
 }
@@ -1219,7 +1219,7 @@ func TestGetFloatsValueFallback(t *testing.T) {
 func TestGetFloatsSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for i, test := range getFloatsValueTests {
-		r := m.GetFloatsV(test.path)
+		r := m.FloatsV(test.path)
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
@@ -1340,7 +1340,7 @@ var getStringsValueTests = []struct {
 func TestGetStringsValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getStringsValueTests {
-		r, e := m.GetStrings(test.path)
+		r, e := m.Strings(test.path)
 		if test.err {
 			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
@@ -1358,7 +1358,7 @@ func TestGetStringsValue(t *testing.T) {
 func TestGetStringsValueFallback(t *testing.T) {
 	m := NewMapPath(map[string]interface{}{})
 	f := []string{"a", "b"}
-	r, e := m.GetStrings("x/y/z", f)
+	r, e := m.Strings("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
 }
@@ -1366,7 +1366,7 @@ func TestGetStringsValueFallback(t *testing.T) {
 func TestGetStringsSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for i, test := range getStringsValueTests {
-		r := m.GetStringsV(test.path)
+		r := m.StringsV(test.path)
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
@@ -1509,7 +1509,7 @@ var getMapsValueTests = []struct {
 func TestGetMapsValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getMapsValueTests {
-		r, e := m.GetMaps(test.path)
+		r, e := m.Maps(test.path)
 		if test.err {
 			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
@@ -1534,7 +1534,7 @@ func TestGetMapsValueFallback(t *testing.T) {
 			"bar": "baz",
 		},
 	}
-	r, e := m.GetMaps("x/y/z", f)
+	r, e := m.Maps("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
 }
@@ -1542,7 +1542,7 @@ func TestGetMapsValueFallback(t *testing.T) {
 func TestGetMapsSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for i, test := range getMapsValueTests {
-		r := m.GetMapsV(test.path)
+		r := m.MapsV(test.path)
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
@@ -1672,7 +1672,7 @@ var getSubsValueTests = []struct {
 func TestGetSubsValue(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for _, test := range getSubsValueTests {
-		r, e := m.GetSubs(test.path)
+		r, e := m.Childs(test.path)
 		if test.err {
 			assert.NotNil(t, e, fmt.Sprintf("Error has been returned on %s", test.path))
 			assert.IsType(t, reflect.TypeOf(&InvalidTypeError{}), reflect.TypeOf(e), "Correct error responded "+test.path)
@@ -1697,7 +1697,7 @@ func TestGetSubsValueFallback(t *testing.T) {
 			"bar": "baz",
 		}),
 	}
-	r, e := m.GetSubs("x/y/z", f)
+	r, e := m.Childs("x/y/z", f)
 	assert.Nil(t, e, "No error when fallback used on invalid path (ints)")
 	assert.Equal(t, r, f, "Fallback is returned (ints)")
 }
@@ -1705,7 +1705,7 @@ func TestGetSubsValueFallback(t *testing.T) {
 func TestGetSubsSingleContext(t *testing.T) {
 	m := NewMapPath(defaultTest)
 	for i, test := range getSubsValueTests {
-		r := m.GetSubsV(test.path)
+		r := m.ChildsV(test.path)
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
@@ -1722,7 +1722,7 @@ func TestGetSubsSingleContext(t *testing.T) {
 
 func TestGetUnsupportedArrayValueReturnsError(t *testing.T) {
 	m := NewMapPath(defaultTest)
-	r, ok, e := m.GetArray(reflect.TypeOf(byte(0)), "array/realints")
+	r, ok, e := m.Array(reflect.TypeOf(byte(0)), "array/realints")
 	_, isaUnsupportedTypeError := e.(UnsupportedTypeError)
 	assert.NotNil(t, e, "Error returned on unsupported type")
 	assert.True(t, isaUnsupportedTypeError, "Unsupported type error has been returned")

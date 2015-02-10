@@ -8,7 +8,7 @@ import (
 func TestFromValidJson(t *testing.T) {
 	r, e := FromJsonFile("resources/ok.json")
 	assert.Nil(t, e, "No error returned")
-	d, e := r.GetString("foo")
+	d, e := r.String("foo")
 	assert.Nil(t, e, "foo key found")
 	assert.Equal(t, "bar", d, "bar value returned")
 }

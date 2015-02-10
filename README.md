@@ -11,6 +11,14 @@ Purpose and Scope
 This is not an [XPATH](http://en.wikipedia.org/wiki/XPath) implementation for Go, but a simple path interface
 to structured data files, like JSON or YAML. Think accessing configuration files or the like.
 
+API Changes
+-----------
+
+### v1 -> v2
+
+* Removed the "Get" prefix of all methods, so former `mappath.GetInt("foo")` becomes `mappath.Int("foo")`. The outlier is `GetSub` which is now `Child`.
+* Added `V`alue-getter with scalar response, eg `mappath.IntV("foo")` has the return signatur of `int`, while `mappath.Int("foo")` still has `(int, error)`. The `V`-getter return the `nil` value, on error
+
 Documentation
 -------------
 
@@ -19,7 +27,7 @@ GoDoc can be [found here](http://godoc.org/github.com/ukautz/mappath)
 ### Installation
 
 ```bash
-$ go get github.com/ukautz/mappath
+$ go get gopkg.in/ukautz/mappath.v2
 ```
 
 ### Usage
@@ -27,7 +35,7 @@ $ go get github.com/ukautz/mappath
 This package needs at least Go 1.1. Import package with
 
 ```go
-import "github.com/ukautz/mappath"
+import "gopkg.in/ukautz/mappath.v2"
 ```
 
 Then you can do
