@@ -31,7 +31,10 @@ var defaultTest = map[string]interface{}{
 		"stringints":   []string{"1", "2", "3", "4"},
 		"stringfloats": []string{"1.01", "2.02", "3.03", "4.04"},
 		"stringbools":  []string{"true", "yes", "false", "no"},
-		"strings":      []string{"foo", "bar", "baz"}},
+		"strings":      []string{"foo", "bar", "baz"},
+		"interfaceints":[]interface{}{1, 2, 3, 4},
+		"interfacestringints":[]interface{}{"1", "2", "3", "4"},
+	},
 	"3d-array": [][][]int{
 		[][]int{
 			[]int{1, 2, 3},
@@ -1023,6 +1026,18 @@ var getIntsValueTests = []struct {
 		err:      false,
 		expected: []int{1, 2, 3, 4},
 	},
+	// from array of interface values which are strings of ints
+	{
+		path:     "array/interfaceints",
+		err:      false,
+		expected: []int{1, 2, 3, 4},
+	},
+	// from array of interface values which are strings of ints
+	{
+		path:     "array/interfacestringints",
+		err:      false,
+		expected: []int{1, 2, 3, 4},
+	},
 	// from array of string floats
 	{
 		path:     "array/stringfloats",
@@ -1082,7 +1097,7 @@ func TestGetIntsSingleContext(t *testing.T) {
 		if test.err {
 			assert.Nil(t, r, fmt.Sprintf("[%d] Nil result returned", i))
 		} else {
-			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d] Expected value returned (ACTUAL: %+v)", i, r))
+			assert.Equal(t, test.expected, r, fmt.Sprintf("[%d:%s] Expected value returned (ACTUAL: %+v)", i, test.path, r))
 		}
 	}
 }

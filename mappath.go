@@ -487,8 +487,11 @@ func (this *MapPath) Array(refType reflect.Type, path string) (interface{}, bool
 
 	for i := 0; i < refVal.Len(); i++ {
 		itemRef := refVal.Index(i)
+		if itemRef.Kind() == reflect.Interface {
+			itemRef = reflect.ValueOf(itemRef.Interface())
+		}
 		if refType.Kind() == itemRef.Kind() {
-			refResult.Index(i).Set(refVal.Index(i))
+			refResult.Index(i).Set(itemRef)
 		} else {
 
 			// must convert or parse item
@@ -505,12 +508,12 @@ func (this *MapPath) Array(refType reflect.Type, path string) (interface{}, bool
 							}
 							break
 						case reflect.Float64:
-							refResult.Index(i).Set(refVal.Index(i).Convert(refType))
+							refResult.Index(i).Set(itemRef.Convert(refType))
 							break
 						case reflect.String:
-							v, eint := strconv.Atoi(refVal.Index(i).String())
+							v, eint := strconv.Atoi(itemRef.String())
 							if eint != nil {
-								f, _ := strconv.ParseFloat(refVal.Index(i).String(), 64)
+								f, _ := strconv.ParseFloat(itemRef.String(), 64)
 								v = int(f)
 							}
 							refResult.Index(i).Set(reflect.ValueOf(v))
@@ -531,10 +534,10 @@ func (this *MapPath) Array(refType reflect.Type, path string) (interface{}, bool
 							}
 							break
 						case reflect.Int:
-							refResult.Index(i).Set(refVal.Index(i).Convert(refType))
+							refResult.Index(i).Set(itemRef.Convert(refType))
 							break
 						case reflect.String:
-							v, _ := strconv.ParseFloat(refVal.Index(i).String(), 64)
+							v, _ := strconv.ParseFloat(itemRef.String(), 64)
 							refResult.Index(i).Set(reflect.ValueOf(v))
 							break
 						default:
@@ -546,7 +549,7 @@ func (this *MapPath) Array(refType reflect.Type, path string) (interface{}, bool
 				case reflect.String:
 					switch itemRef.Kind() {
 						case reflect.Bool:
-							if refVal.Index(i).Bool() {
+							if itemRef.Bool() {
 								refResult.Index(i).Set(reflect.ValueOf("true"))
 							} else {
 								refResult.Index(i).Set(reflect.ValueOf("false"))
