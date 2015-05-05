@@ -490,7 +490,7 @@ func (this *MapPath) Array(refType reflect.Type, path string) (interface{}, bool
 		if itemRef.Kind() == reflect.Interface {
 			itemRef = reflect.ValueOf(itemRef.Interface())
 		}
-		if refType.Kind() == itemRef.Kind() {
+		if refType.Kind() == itemRef.Kind() && refType.ConvertibleTo(itemRef.Type()) {
 			refResult.Index(i).Set(itemRef)
 		} else {
 
@@ -578,11 +578,21 @@ func (this *MapPath) Array(refType reflect.Type, path string) (interface{}, bool
 
 					// expecting []map[string]interface{}
 				case reflect.Map:
-					mapVal, ok := refVal.Index(i).Interface().(map[string]interface{})
-					if !ok {
-						return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@6", i, refType.Kind())}
+					var mapVal map[string]interface{}
+					var ok bool
+					if mapVal, ok = refVal.Index(i).Interface().(map[string]interface{}); !ok {
+						if mapValRaw, ok := refVal.Index(i).Interface().(map[interface{}]interface{}); !ok {
+							return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@6", i, refType.Kind())}
+						} else {
+							mapVal = make(map[string]interface{})
+							for k, v := range mapValRaw {
+								mapVal[fmt.Sprintf("%s", k)] = v
+							}
+						}
 					}
-					refResult.Index(i).Set(reflect.ValueOf(mapVal))
+					if mapVal != nil {
+						refResult.Index(i).Set(reflect.ValueOf(mapVal))
+					}
 					break
 
 					// oops

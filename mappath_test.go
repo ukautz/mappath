@@ -57,6 +57,12 @@ var defaultTest = map[string]interface{}{
 				"bar": []string{"five", "six"},
 			},
 		},
+		"array3": []map[interface{}]interface{}{
+			map[interface{}]interface{}{
+				"foo": "bar",
+				"baz": []string{"one", "two"},
+			},
+		},
 	},
 	"scalar": map[string]interface{}{
 		"stringint":   "123",
@@ -1679,6 +1685,17 @@ var getSubsValueTests = []struct {
 			NewMapPath(map[string]interface{}{
 				"foo": []int{11, 12, 13, 14},
 				"bar": []string{"five", "six"},
+			}),
+		},
+	},
+	// from invalid path
+	{
+		path: "mixed/array3",
+		err:  false,
+		expected: []*MapPath{
+			NewMapPath(map[string]interface{}{
+				"foo": "bar",
+				"baz": []string{"one", "two"},
 			}),
 		},
 	},
