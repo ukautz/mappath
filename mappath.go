@@ -577,7 +577,14 @@ func (this *MapPath) Array(refType reflect.Type, path string) (interface{}, bool
 				case reflect.Map:
 					mapVal, ok := refVal.Index(i).Interface().(map[string]interface{})
 					if !ok {
-						return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@6", i, refType.Kind())}
+						mapValInt, ok := refVal.Index(i).Interface().(map[interface{}]interface{})
+						if !ok {
+							return nil, false, &InvalidTypeError{itemRef.Interface(), fmt.Sprintf("[%d]array<%s>@6", i, refType.Kind())}
+						}
+						mapVal = make(map[string]interface{})
+						for k, v := range mapValInt {
+							mapVal[fmt.Sprintf("%v", k)] = v
+						}
 					}
 					refResult.Index(i).Set(reflect.ValueOf(mapVal))
 					break
