@@ -10,12 +10,12 @@ import (
 var defaultTest = map[string]interface{}{
 	"hello": "world",
 	"bool": map[string]interface{}{
-		"yes": true,
-		"no": false,
+		"yes":        true,
+		"no":         false,
 		"stringyes1": "true",
 		"stringyes2": "yes",
-		"stringno1": "false",
-		"stringno2": "no",
+		"stringno1":  "false",
+		"stringno2":  "no",
 	},
 	"foo": map[string]interface{}{
 		"bar": "baz",
@@ -287,6 +287,7 @@ func TestUseGivenFallbackOnMissingPath(t *testing.T) {
 		assert.Nil(t, e, "Error becomes nil")
 	}
 }
+
 /*
  * -------
  * Get: Bool
@@ -1728,6 +1729,69 @@ func TestGetUnsupportedArrayValueReturnsError(t *testing.T) {
 	assert.True(t, isaUnsupportedTypeError, "Unsupported type error has been returned")
 	assert.Nil(t, r, "Result is nil")
 	assert.False(t, ok, "Not been found")
+}
+
+/*
+ * -------
+ * Get: Config
+ * -------
+ */
+
+func TestDeepStructures(t *testing.T) {
+	m := NewMapPath(map[string]interface{}{
+		"foo": map[string]interface{}{
+			"bar": map[string]interface{}{
+				"baz": map[string]interface{}{
+					"boing": 1,
+				},
+			},
+			"yyy": []string{
+				"1",
+				"2",
+				"3",
+			},
+			"zzz": []map[string]interface{}{
+				map[string]interface{}{"name": 1},
+				map[string]interface{}{"name": 2},
+				map[string]interface{}{"name": 3},
+			},
+			"www": nil,
+		},
+	})
+	valids := []string{
+		"foo",
+		"foo/bar",
+		"foo/bar/baz",
+		"foo/bar/baz/boing",
+		"foo/yyy",
+		"foo/yyy/1",
+		"foo/zzz",
+		"foo/zzz/1",
+		"foo/zzz/1/name",
+		"foo/www",
+	}
+	for _, path := range valids {
+		v := m.Has(path)
+		assert.True(t, v, fmt.Sprintf("Path: %s", path))
+	}
+	invalids := []string{
+		"bar",
+		"foo/foo",
+		"foo/bar/foo",
+		"foo/bar/baz/foo",
+		"foo/yyy/foo",
+		"foo/zzz/foo",
+		"foo/zzz/1/foo",
+		"foo/www/bla",
+	}
+	for _, path := range valids {
+		v := m.Has(path)
+		assert.True(t, v, fmt.Sprintf("Valid Path: %s", path))
+	}
+	for _, path := range invalids {
+		v := m.Has(path)
+		assert.False(t, v, fmt.Sprintf("Invalid Path: %s", path))
+	}
 }
 
 /*

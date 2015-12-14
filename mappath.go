@@ -755,6 +755,9 @@ func (this *MapPath) getArray(pathParts []string, current reflect.Value) (interf
 
 func (this *MapPath) getNext(pathParts []string, val interface{}) (interface{}, bool) {
 	if len(pathParts) > 1 {
+		if val == nil || reflect.ValueOf(val).IsNil() {
+			return nil, false
+		}
 		t := reflect.TypeOf(val)
 		switch t.Kind() {
 		case reflect.Map:
